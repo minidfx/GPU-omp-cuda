@@ -1,0 +1,43 @@
+#include <iostream>
+#include <stdlib.h>
+
+#include "Settings.h"
+
+using std::cout;
+using std::endl;
+
+extern int mainGL(Settings& settings);
+extern int mainMOO(Settings& settings);
+<<<<<<< HEAD
+=======
+
+>>>>>>> Ray tracing classes created
+static int start(Settings& settings);
+
+int main(int argc, char** argv) {
+  cout<<"main"<<endl;
+
+<<<<<<< HEAD
+  bool IS_GL = false;
+=======
+  bool IS_GL = true;
+>>>>>>> Ray tracing classes created
+  Settings settings(IS_GL,argc,argv);
+
+  return start(settings);
+}
+
+int start(Settings& settings) {
+  if (settings.isGL()) {
+<<<<<<< HEAD
+	   return mainGL(settings); // Bloquant, Tant qu'une fenetre est ouverte
+	} else {
+    return mainMOO(settings); // FreeGL
+	}
+=======
+    return mainGL(settings); // Bloquant, Tant qu'une fenetre est ouverte
+  } else {
+    return mainMOO(settings); // FreeGL
+  }
+>>>>>>> Ray tracing classes created
+}

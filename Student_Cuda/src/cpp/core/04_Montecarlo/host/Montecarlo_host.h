@@ -1,0 +1,2 @@
+bool isMontecarlo();
+bool isMontecarloMGPU();
