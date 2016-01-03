@@ -21,5 +21,5 @@ AnimableFonctionel_I* JuliaFactory::createGenerator()
     const int nMin = 30;
     const int nMax = 100;
 
-    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, false, "Julia Graphic Generator");
+    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, false, "CUDA Julia");
 }

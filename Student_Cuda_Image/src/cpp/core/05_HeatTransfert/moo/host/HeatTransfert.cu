@@ -7,37 +7,9 @@
 using std::cout;
 using std::endl;
 
-/*----------------------------------------------------------------------*\
- |*			Declaration 					*|
- \*---------------------------------------------------------------------*/
-
-/*--------------------------------------*\
- |*		Imported	 	*|
- \*-------------------------------------*/
-
 extern __global__ void ecrasement(float* ptrImageInOutput, float* ptrImageHeater, int w, int h);
 extern __global__ void diffusion(float* ptrImageInput, float* ptrImageOutput, int w, int h);
 extern __global__ void toScreenImageHSB(uchar4* ptrDevPixels, float* ptrImageInput, int w, int h);
-
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-/*--------------------------------------*\
- |*		Private			*|
- \*-------------------------------------*/
-
-/*----------------------------------------------------------------------*\
- |*			Implementation 					*|
- \*---------------------------------------------------------------------*/
-
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-/*-------------------------*\
- |*	Constructeur	    *|
- \*-------------------------*/
 
 HeatTransfert::HeatTransfert(int w, int h, float dt)
     {
@@ -91,31 +63,26 @@ void HeatTransfert::initImages()
 	{
 	for (int j = 0; j < IMAGEHEIGHT; j++)
 	    {
-
-	    //Carré chaud au milieu
+	    // Hot middle square
 	    if (i > 350 && i < 450 && j > 350 && j < 450)
 		imageHeater[i * IMAGEWIDTH + j] = 1.0;
 
-	    //Petit carré froid en diagonale
+	    // COld diagonal square
 	    if (i >= 280 && i <= 520 && (i <= 310 || i >= 490) && j >= 280 && j <= 520 && (j <= 310 || j >= 490))
 		imageHeater[i * IMAGEWIDTH + j] = -0.2;
 
-	    //Petit carré chaud
+	    // Hot square
 	    if (i >= 179 && i <= 621 && (i <= 195 || i >= 605 || (i >= 392 && i <= 408)) && j >= 179 && j <= 621 && (j <= 195 || j >= 605 || (j >= 392 && j <= 408)))
 		imageHeater[i * IMAGEWIDTH + j] = 1.0;
-
 	    }
-
 	}
 
     imageInit = new float[IMAGEWIDTH * IMAGEHEIGHT];
-
     }
 
 void HeatTransfert::memoryManagment()
     {
-    //Global Memory
-
+    // Global memory
     this->ptrDevImageInit = NULL;
     this->ptrDevImageHeater = NULL;
     this->ptrDevImageA = NULL;
@@ -132,15 +99,10 @@ void HeatTransfert::memoryManagment()
 
     HANDLE_ERROR(cudaMemcpy(ptrDevImageInit, this->imageInit, size, cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(ptrDevImageHeater, this->imageHeater, size, cudaMemcpyHostToDevice));
-
     }
 
-/**
- * Override
- */
 void HeatTransfert::process(uchar4* ptrDevPixels, int w, int h)
     {
-
     float* ptrImageInput = NULL;
     float* ptrImageOutput = NULL;
     if (this->isImageAInput)
@@ -165,57 +127,29 @@ void HeatTransfert::process(uchar4* ptrDevPixels, int w, int h)
 
     isImageAInput = !isImageAInput;
     nbIterations++;
-
     }
 
-/**
- * Override
- */
 void HeatTransfert::animationStep()
     {
     t += dt;
     }
 
-/*--------------*\
- |*	get	 *|
- \*--------------*/
-
-/**
- * Override
- */
 float HeatTransfert::getAnimationPara(void)
     {
     return t;
     }
 
-/**
- * Override
- */
 int HeatTransfert::getW(void)
     {
     return w;
     }
 
-/**
- * Override
- */
 int HeatTransfert::getH(void)
     {
     return h;
     }
 
-/**
- * Override
- */
 string HeatTransfert::getTitle(void)
     {
     return title;
     }
-
-/*--------------------------------------*\
- |*		Private			*|
- \*-------------------------------------*/
-
-/*----------------------------------------------------------------------*\
- |*			End	 					*|
- \*---------------------------------------------------------------------*/

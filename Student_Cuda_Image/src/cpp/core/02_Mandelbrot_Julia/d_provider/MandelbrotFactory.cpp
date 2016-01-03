@@ -21,5 +21,5 @@ AnimableFonctionel_I* MandelbrotFactory::createGenerator()
     const int nMin = 30;
     const int nMax = 100;
 
-    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, true, "Mandelbrot Graphic Generator");
+    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, true, "CUDA Mandelbrot");
 }

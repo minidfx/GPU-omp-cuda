@@ -43,8 +43,8 @@ void calculate(uchar4* ptrTabPixels,
     // Color of pixels
     uchar4 color;
 
-    if(isMandelbrot)
-    {
+    /*if(isMandelbrot)
+    {*/
         MandelBrotMath fractalMath = MandelBrotMath();
 
         while (s < totalPixels)
@@ -61,7 +61,7 @@ void calculate(uchar4* ptrTabPixels,
 
             s += nbThread;
         }
-    }
+    /*}
     else
     {
         JuliaMath fractalMath = JuliaMath(-0.12, 0.85);
@@ -80,5 +80,5 @@ void calculate(uchar4* ptrTabPixels,
 
             s += nbThread;
         }
-    }
+    }*/
 }
