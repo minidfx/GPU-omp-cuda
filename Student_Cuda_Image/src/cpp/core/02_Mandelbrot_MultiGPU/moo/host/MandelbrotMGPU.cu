@@ -9,16 +9,18 @@ using cpu::IntervalI;
 
 extern __global__ void mandelbrot(uchar4* ptrDevPixels, int w, int h, DomaineMath domaineMath, int n);
 
-MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) : variateurN(IntervalI(nMin, nMax), 1)
-{
+MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) :
+	variateurN(IntervalI(nMin, nMax), 1)
+    {
     // Inputs
     this->w = w;
     this->h = h;
+    this->n = nMax;
 
     this->ptrDomaineMathInit = new DomaineMath(-2.1, -1.3, 0.8, 1.3); // Mandelbrot
 
     // Tools
-    this->dg = dim3(8, 8, 1); // disons a optimiser
+    this->dg = dim3(16, 8, 1); // disons a optimiser
     this->db = dim3(16, 16, 1); // disons a optimiser
     this->deviceID = Device::getDeviceId();
     this->deviceIDBottom = 5;
@@ -35,49 +37,48 @@ MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) : variateurN(In
     HANDLE_ERROR(cudaSetDevice(deviceID));
 
     // Check:
-    //print(dg, db);
     Device::assertDim(dg, db);
-}
+    }
 
 MandelbrotMGPU::~MandelbrotMGPU()
-{
+    {
     HANDLE_ERROR(cudaSetDevice(deviceIDBottom));
     HANDLE_ERROR(cudaFree(ptrDevTab1));
     HANDLE_ERROR(cudaSetDevice(deviceID));
 
-    delete ptrDomaineMathInit;
-}
+    delete this->ptrDomaineMathInit;
+    }
 /**
  * Override
  */
 void MandelbrotMGPU::process(uchar4* ptrDevPixels0, int w, int h, const DomaineMath& domaineMath)
-{
+    {
     DomaineMath dmTop = domaineMath;
     dmTop.y1 = domaineMath.y1 / 2;
 
     DomaineMath dmBottom = domaineMath;
     dmBottom.y0 = domaineMath.y0 + (domaineMath.y1 - domaineMath.y0) / 2;
 
-    #pragma omp parallel sections
-    {
-	#pragma omp section
+#pragma omp parallel sections
 	{
-	    mandelbrot<<<dg,db>>>(ptrDevPixels0,w,h/2,dmTop, n);
+#pragma omp section
+	    {
+	mandelbrot<<<dg,db>>>(ptrDevPixels0,w,h/2,dmTop, n);
 	}
 
-	#pragma omp section
+#pragma omp section
 	{
-	    int deviceID = Device::getDeviceId();
-	    HANDLE_ERROR(cudaSetDevice(deviceIDBottom));
+	int deviceID = Device::getDeviceId();
+	HANDLE_ERROR(cudaSetDevice(deviceIDBottom));
 
-	    this->ptrDevBottomImage0 = ptrDevPixels0 + (w * (h / 2));
+	this->ptrDevBottomImage0 = ptrDevPixels0 + (w * (h / 2));
 
-	    // kernel
-	    mandelbrot<<<dg,db>>>(ptrDevTab1,w,h/2,dmBottom, n);
+	// kernel
+mandelbrot<<<dg,db>>>(ptrDevTab1,w,h/2,dmBottom, n);
 
 	    // MM copie sur device0 (affichage)
-	    HANDLE_ERROR(cudaMemcpy(ptrDevBottomImage0, ptrDevTab1, size, cudaMemcpyDeviceToDevice));
-	    HANDLE_ERROR(cudaSetDevice(deviceID));
+	    	HANDLE_ERROR(cudaMemcpy(ptrDevBottomImage0, ptrDevTab1, size, cudaMemcpyDeviceToDevice));
+	HANDLE_ERROR(cudaSetDevice(deviceID));
 	}
     }
 }
@@ -88,7 +89,7 @@ void MandelbrotMGPU::process(uchar4* ptrDevPixels0, int w, int h, const DomaineM
  */
 void MandelbrotMGPU::animationStep()
 {
-    this->n = variateurN.varierAndGet(); // in [0,2pi]
+this->n = variateurN.varierAndGet(); // in [0,2pi]
 }
 
 /*--------------*\
@@ -100,7 +101,7 @@ void MandelbrotMGPU::animationStep()
  */
 DomaineMath* MandelbrotMGPU::getDomaineMathInit(void)
 {
-    return ptrDomaineMathInit;
+return ptrDomaineMathInit;
 }
 
 /**
@@ -108,7 +109,7 @@ DomaineMath* MandelbrotMGPU::getDomaineMathInit(void)
  */
 float MandelbrotMGPU::getAnimationPara(void)
 {
-    return n;
+return n;
 }
 
 /**
@@ -116,7 +117,7 @@ float MandelbrotMGPU::getAnimationPara(void)
  */
 int MandelbrotMGPU::getW(void)
 {
-    return w;
+return w;
 }
 
 /**
@@ -124,7 +125,7 @@ int MandelbrotMGPU::getW(void)
  */
 int MandelbrotMGPU::getH(void)
 {
-    return h;
+return h;
 }
 
 /**
@@ -132,5 +133,5 @@ int MandelbrotMGPU::getH(void)
  */
 string MandelbrotMGPU::getTitle(void)
 {
-    return title;
+return title;
 }

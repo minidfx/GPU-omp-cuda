@@ -10,42 +10,42 @@
 
 #include "FractalMathBase.h"
 
-class MandelBrotMath : public FractalMathBase
-{
+class MandelBrotMath: public FractalMathBase
+    {
     public:
 
-        __device__
-        MandelBrotMath() : FractalMathBase()
-        {
-        }
+	__device__ MandelBrotMath() :
+		FractalMathBase()
+	    {
+	    }
 
     protected:
 
-        __device__
-        virtual bool isDivergent(double a, double b)
-        {
-            return a*a + b*b > 4;
-        }
+	__device__
+	virtual bool isDivergent(float a, float b)
+	    {
+	    return a * a + b * b > 4;
+	    }
 
-        __device__
-        virtual int getK(double x, double y, int max)
-        {
-            double a = 0;
-    	    double b = 0;
+	__device__
+	virtual int getK(float x, float y, int max)
+	    {
+	    float a = 0;
+	    float b = 0;
 
-    	    int k = 0;
+	    int k = 0;
 
-    	    while(!this->isDivergent(a, b) && k < max)
-    		{
-    			double aCopy = a;
-    			a = (aCopy*aCopy - b*b) + x;
-    			b = 2. * aCopy * b + y;
+	    while (!this->isDivergent(a, b) && k < max)
+		{
+		float aCopy = a;
+		a = (aCopy * aCopy - b * b) + x;
+		b = 2. * aCopy * b + y;
 
-    			k++;
-    		}
+		k++;
+		}
 
-    	    return k;
-        }
-};
+	    return k;
+	    }
+    };
 
 #endif

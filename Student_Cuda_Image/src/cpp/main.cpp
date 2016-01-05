@@ -15,60 +15,69 @@ extern int mainFreeGL(Option& option);
 
 int main(int argc, char** argv);
 
-
 static int use(Option& option);
 static int start(Option& option);
 static void initCuda(Option& option);
 
-int main(int argc, char** argv) {
-  // Server Cuda1: in [0,5]
-  // Server Cuda2: in [0,2]
-  int DEVICE_ID = 2;
-  bool IS_GL = true;
+int main(int argc, char** argv)
+    {
+    // Server Cuda1: in [0,5]
+    // Server Cuda2: in [0,2]
+    int DEVICE_ID = 5;
+    bool IS_GL = true;
 
-  Option option(IS_GL, DEVICE_ID,argc,argv);
+    Option option(IS_GL, DEVICE_ID, argc, argv);
 
-  use(option);
-}
-
-int use(Option& option) {
-  if (Device::isCuda()) {
-      initCuda(option);
-      int isOk = start(option);
-
-      HANDLE_ERROR(cudaDeviceReset()); //cudaDeviceReset causes the driver to clean up all state. While not mandatory in normal operation, it is good practice.
-
-      return isOk;
-    } else {
-      return EXIT_FAILURE;
+    use(option);
     }
-}
 
-void initCuda(Option& option) {
-  int deviceId = option.getDeviceId();
+int use(Option& option)
+    {
+    if (Device::isCuda())
+	{
+	initCuda(option);
+	int isOk = start(option);
 
-  // Check deviceId area
-  int nbDevice = Device::getDeviceCount();
-  assert(deviceId >= 0 && deviceId < nbDevice);
+	HANDLE_ERROR(cudaDeviceReset()); //cudaDeviceReset causes the driver to clean up all state. While not mandatory in normal operation, it is good practice.
 
-  // Choose current device  (state of host-thread)
-  HANDLE_ERROR(cudaSetDevice(deviceId));
+	return isOk;
+	}
+    else
+	{
+	return EXIT_FAILURE;
+	}
+    }
 
-  // It can be usefull to preload driver, by example to practice benchmarking! (sometimes slow under linux)
-  Device::loadCudaDriver(deviceId);
-  // Device::loadCudaDriverAll();// Force driver to be load for all GPU
-}
+void initCuda(Option& option)
+    {
+    int deviceId = option.getDeviceId();
 
-int start(Option& option) {
+    // Check deviceId area
+    int nbDevice = Device::getDeviceCount();
+    assert(deviceId >= 0 && deviceId < nbDevice);
 
-	Device::printAll();
-	Device::printAllSimple();
-	Device::printCurrent();
-	Device::print(option.getDeviceId());
+    // Choose current device  (state of host-thread)
+    HANDLE_ERROR(cudaSetDevice(deviceId));
 
-if (option.isGL()) {
-    return mainGL(option); // Bloquant, Tant qu'une fenetre est ouverte
-  } else {
-    return mainFreeGL(option);
-  }
-}
+    // It can be usefull to preload driver, by example to practice benchmarking! (sometimes slow under linux)
+    Device::loadCudaDriver(deviceId);
+    // Device::loadCudaDriverAll();// Force driver to be load for all GPU
+    }
+
+int start(Option& option)
+    {
+
+    Device::printAll();
+    Device::printAllSimple();
+    Device::printCurrent();
+    Device::print(option.getDeviceId());
+
+    if (option.isGL())
+	{
+	return mainGL(option); // Bloquant, Tant qu'une fenetre est ouverte
+	}
+    else
+	{
+	return mainFreeGL(option);
+	}
+    }

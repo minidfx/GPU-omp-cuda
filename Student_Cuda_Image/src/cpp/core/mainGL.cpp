@@ -20,19 +20,20 @@ using std::string;
 
 int mainGL(Option& option);
 
-int mainGL(Option& option) {
-	cout << "\n[OpenGL] mode" << endl;
+int mainGL(Option& option)
+    {
+    cout << "\n[OpenGL] mode" << endl;
 
-	GLUTImageViewers::init(option.getArgc(), option.getArgv());
+    GLUTImageViewers::init(option.getArgc(), option.getArgv());
 
-	//Viewer<RipplingProvider> rippling(0, 0);
-	//ViewerZoomable<MandelbrotFactory> mandelbrot(0, 0);
-	//ViewerZoomable<JuliaFactory> julia(800, 0);
-	//ViewerZoomable<RaytracingProvider> raytracing(0, 0);
-	ViewerZoomable<MandelbrotProviderMGPU> mandelbrotMGPU(0, 0);
-	//Viewer<HeatTransfertProvider> heatTransfert(0, 0);
+    //Viewer<RipplingProvider> rippling(10,10);
+    //ViewerZoomable<MandelbrotFactory> mandelbrot(10, 10);
+    //ViewerZoomable<JuliaFactory> julia(820, 0);
+    //ViewerZoomable<RaytracingProvider> raytracing(0, 0);
+    ViewerZoomable<MandelbrotProviderMGPU> mandelbrotMGPU(10, 10);
+    //Viewer<HeatTransfertProvider> heatTransfert(0, 0);
 
-	GLUTImageViewers::runALL(); // Bloquant, Tant qu'une fenetre est ouverte
+    GLUTImageViewers::runALL(); // Bloquant, Tant qu'une fenetre est ouverte
 
-	return EXIT_SUCCESS;
-}
+    return EXIT_SUCCESS;
+    }

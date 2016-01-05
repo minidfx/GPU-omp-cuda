@@ -5,11 +5,11 @@
 #include "Animable_I.h"
 
 class RipplingProvider
-{
+    {
     public:
 
-        static Image* createGL(void);
-        static Animable_I* createMOO(void);
-};
+	static Image* createGL(void);
+	static Animable_I* createMOO(void);
+    };
 
 #endif

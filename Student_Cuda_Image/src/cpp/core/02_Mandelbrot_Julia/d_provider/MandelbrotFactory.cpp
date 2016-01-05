@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "MandelbrotFactory.h"
 #include "GraphicGenerator.h"
 

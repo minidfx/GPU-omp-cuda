@@ -1,5 +1,5 @@
-#ifndef JULIA_PROVIDER_H_
-#define JULIA_PROVIDER_H_
+#ifndef JULIA_FACTORY_H_
+#define JULIA_FACTORY_H_
 
 #include "ImageFonctionel.h"
 #include "AnimableFonctionel_I.h"

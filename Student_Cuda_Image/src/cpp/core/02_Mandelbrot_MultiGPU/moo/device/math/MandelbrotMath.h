@@ -1,74 +1,51 @@
 #ifndef MANDELBROT_MATH_H_
 #define MANDELBROT_MATH_H_
 
-#include <math.h>
+#include <iostream>
 
-#include "../../../../02_Mandelbrot_MultiGPU/moo/device/math/MandelbrotMathBase.h"
+#include "CalibreurF.h"
 #include "ColorTools.h"
+#include <math.h>
+#include <list>
 
-/*----------------------------------------------------------------------*\
- |*			Declaration 					*|
- \*---------------------------------------------------------------------*/
+#include "FractalMathBase.h"
 
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-class MandelbrotMath : public MandelbrotMathBase
+class MandelBrotMath: public FractalMathBase
     {
-
-	/*--------------------------------------*\
-	|*		Constructor		*|
-	 \*-------------------------------------*/
-
     public:
 
-	__device__
-    MandelbrotMath(int n) : MandelbrotMathBase(n)
+	__device__ MandelBrotMath() :
+		FractalMathBase()
 	    {
-        // nothing
 	    }
-
-	__device__
-    virtual ~MandelbrotMath(void)
-	    {
-	    //nothing
-	    }
-
-	/*--------------------------------------*\
-	|*		Methodes		*|
-	 \*-------------------------------------*/
 
     protected:
 
 	__device__
-	virtual int getK(float x, float y)
+	virtual bool isDivergent(float a, float b)
+	    {
+	    return a * a + b * b > 4;
+	    }
+
+	__device__
+	virtual int getK(float x, float y, int max)
 	    {
 	    float a = 0;
 	    float b = 0;
 
 	    int k = 0;
 
-	    while (!isDivergent(a, b) && k <= this->n)
+	    while (!this->isDivergent(a, b) && k < max)
 		{
 		float aCopy = a;
 		a = (aCopy * aCopy - b * b) + x;
-		b = 2.0 * aCopy * b + y;
+		b = 2. * aCopy * b + y;
 
 		k++;
 		}
 
 	    return k;
 	    }
-
-	/*--------------------------------------*\
-	|*		Attributs		*|
-	 \*-------------------------------------*/
-
     };
 
 #endif
-
-/*----------------------------------------------------------------------*\
- |*			End	 					*|
- \*---------------------------------------------------------------------*/

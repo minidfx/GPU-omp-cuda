@@ -12,109 +12,109 @@
 // ----------------------------------------------------------------------
 // Class responsible for generating a graphic through the Mandelbrot way.
 // -----------------------------------------------------------------------
-class GraphicGenerator : public AnimableFonctionel_I
-{
-    // ----------------------------
-    // Public members
-    // ----------------------------
+class GraphicGenerator: public AnimableFonctionel_I
+    {
+	// ----------------------------
+	// Public members
+	// ----------------------------
     public:
 
-        // -------------------------
-        // Constructor & Destructor
-        // -------------------------
-        GraphicGenerator(unsigned int width,
-                         unsigned int height,
-                         unsigned int nMin,
-                         unsigned int nMax,
-                         DomaineMath *ptrMathDomain,
-                         bool isMandelbrot,
-                         string title);
+	// -------------------------
+	// Constructor & Destructor
+	// -------------------------
+	GraphicGenerator(unsigned int width, unsigned int height, unsigned int nMin, unsigned int nMax, DomaineMath *ptrMathDomain, bool isMandelbrot,
+		string title);
 
-        // ----------------------------
-        // Virtual members
-        // ----------------------------
+	// ----------------------------
+	// Virtual members
+	// ----------------------------
 
-        // --------------
-        // Deconstructor
-        // --------------
-        virtual ~GraphicGenerator();
+	// --------------
+	// Deconstructor
+	// --------------
+	virtual ~GraphicGenerator();
 
-        // ----------------------------
-        // Call periodicaly by the api
-        // ----------------------------
-        virtual void process(uchar4* ptrTabPixels, int width, int height, const DomaineMath& mathDomain);
+	// ----------------------------
+	// Call periodicaly by the api
+	// ----------------------------
+	virtual void process(uchar4* ptrTabPixels, int width, int height, const DomaineMath& mathDomain);
 
-        // ----------------------------
-        // Call periodicaly by the api
-        // ----------------------------
-        virtual void animationStep();
+	// ----------------------------
+	// Call periodicaly by the api
+	// ----------------------------
+	virtual void animationStep();
 
-        // ------------------------------------------------------
-        // Gets the value to identify the state of the animation.
-        // ------------------------------------------------------
-    	virtual float getAnimationPara();
+	// ------------------------------------------------------
+	// Gets the value to identify the state of the animation.
+	// ------------------------------------------------------
+	virtual float getAnimationPara();
 
-        // ------------------------------
-        // Gets the width of the graphic
-        // ------------------------------
-    	virtual int getW();
+	// ------------------------------
+	// Gets the width of the graphic
+	// ------------------------------
+	virtual int getW();
 
-        // -------------------------------
-        // Gets the height of the graphic
-        // -------------------------------
-    	virtual int getH();
+	// -------------------------------
+	// Gets the height of the graphic
+	// -------------------------------
+	virtual int getH();
 
-        // ------------------------------
-        // Gets the title of the graphic
-        // ------------------------------
-    	virtual string getTitle();
+	// ------------------------------
+	// Gets the title of the graphic
+	// ------------------------------
+	virtual string getTitle();
 
-        // -----------------------------------------------------
-        // Gets the domain math used for generating the graphic
-        // -----------------------------------------------------
-    	virtual DomaineMath* getDomaineMathInit();
+	// -----------------------------------------------------
+	// Gets the domain math used for generating the graphic
+	// -----------------------------------------------------
+	virtual DomaineMath* getDomaineMathInit();
 
-    // ----------------------------
-    // Private members
-    // ----------------------------
+	// ----------------------------
+	// Private members
+	// ----------------------------
     private:
 
-        dim3 dg;
-        dim3 db;
+	dim3 dg;
+	dim3 db;
 
-        unsigned int max;
+	unsigned int max;
 
-    // ----------------------------
-    // Protected members
-    // ----------------------------
+	// ----------------------------
+	// Protected members
+	// ----------------------------
     protected:
 
-        // -------------------------
-        // The widht of the graphic.
-        // -------------------------
-    	unsigned int width;
+	// -------------------------
+	// The widht of the graphic.
+	// -------------------------
+	unsigned int width;
 
-        // --------------------------
-        // The height of the graphic.
-        // --------------------------
-    	unsigned int height;
+	// --------------------------
+	// The height of the graphic.
+	// --------------------------
+	unsigned int height;
 
-        // -----------------------------------
-        // Class representing the boundary of the graphic.
-        // -----------------------------------
-    	DomaineMath *ptrMathDomain;
+	// -----------------------------------
+	// Class representing the boundary of the graphic.
+	// -----------------------------------
+	DomaineMath *ptrMathDomain;
 
-        bool isMandelbrot;
+	bool isMandelbrot;
 
-    	// ----------------------------------------------
-        // Members representing the title of the graphic
-        // ----------------------------------------------
-    	string title;
+	void (GraphicGenerator::*ptrProcessFunction)(uchar4* ptrTabPixels, int width, int height, const DomaineMath& mathDomain);
 
-        // -------------------------------------------------------------
-        // The variateur responsible for changing the fractal parameter.
-        // -------------------------------------------------------------
-    	VariateurI variateurN;
-};
+	void processMandelbrotOnGPU(uchar4* ptrTabPixels, int width, int height, const DomaineMath& mathDomain);
+	void processJuliaOnGPU(uchar4* ptrTabPixels, int width, int height, const DomaineMath& mathDomain);
+
+	// ----------------------------------------------
+	// Members representing the title of the graphic
+	// ----------------------------------------------
+	string title;
+
+	// -------------------------------------------------------------
+	// The variateur responsible for changing the fractal parameter.
+	// -------------------------------------------------------------
+	VariateurI variateurN;
+    };
 
 #endif

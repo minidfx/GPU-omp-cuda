@@ -1,9 +1,12 @@
-#include "MandelbrotMath.h"
 #include "Indice2D.h"
 #include "IndiceTools.h"
 #include "DomaineMath.h"
 #include "cudaTools.h"
 #include "Device.h"
+
+#include "FractalMathBase.h"
+#include "JuliaMath.h"
+#include "MandelBrotMath.h"
 
 /*----------------------------------------------------------------------*\
  |*			Declaration 					*|
@@ -37,12 +40,7 @@ __global__ void mandelbrot(uchar4* ptrDevPixels, int w, int h, DomaineMath domai
 
 __global__ void mandelbrot(uchar4* ptrDevPixels, int w, int h, DomaineMath domaineMath, int n)
     {
-    // hiérarchie de classe et polymorphisme (donc en utilisant des pointeurs) fonctionnels
-
-    float c1 = -0.12;
-    float c2 = 0.85;
-
-    MandelbrotMathBase* mandelbrotMath = new MandelbrotMath(n);
+    FractalMathBase* mandelbrotMath = new MandelBrotMath();
 
     const int TID = Indice2D::tid();
     const int NB_THREAD = Indice2D::nbThread();
@@ -60,13 +58,11 @@ __global__ void mandelbrot(uchar4* ptrDevPixels, int w, int h, DomaineMath domai
     int s = TID;
     while (s < WH)
 	{
-	IndiceTools::toIJ(s, w, &pixelI, &pixelJ); // update (pixelI, pixelJ)
+	IndiceTools::toIJ(s, w, &pixelI, &pixelJ);
 
-	// (i,j) domaine ecran
-	// (x,y) domaine math
-	domaineMath.toXY(pixelI, pixelJ, &x, &y); //  (i,j) -> (x,y)
+	domaineMath.toXY(pixelI, pixelJ, &x, &y);
 
-	mandelbrotMath->colorXY(&color, x, y); // update color
+	mandelbrotMath->colorXY(&color, x, y, n);
 
 	ptrDevPixels[s] = color;
 

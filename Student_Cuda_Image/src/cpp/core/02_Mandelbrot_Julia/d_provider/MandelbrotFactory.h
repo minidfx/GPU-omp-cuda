@@ -1,5 +1,5 @@
-#ifndef MANDELBROT_PROVIDER_H_
-#define MANDELBROT_PROVIDER_H_
+#ifndef MANDELBROT_FACTORY_H_
+#define MANDELBROT_FACTORY_H_
 
 #include "ImageFonctionel.h"
 #include "AnimableFonctionel_I.h"

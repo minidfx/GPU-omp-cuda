@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "Indice2D.h"
 #include "IndiceTools.h"
 #include "DomaineMath.h"
@@ -11,74 +13,63 @@
 // -------
 // Headers
 // -------
-__global__
-void calculate(uchar4* ptrTabPixels,
-             int width,
-             int height,
-             const DomaineMath mathDomain,
-             bool isMandelbrot,
-             int max);
+__global__ void processMandelbrot(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max);
 
-// ---------------
-// Implementation
-// ---------------
-__global__
-void calculate(uchar4* ptrTabPixels,
-             int width,
-             int height,
-             const DomaineMath mathDomain,
-             bool isMandelbrot,
-             int max)
-{
+__global__ void processJulia(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max);
+
+__device__ void processFractal(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max, FractalMathBase* fractalMath);
+
+// -------------------------
+// Implementation Mandelbrot
+// -------------------------
+__global__ void processMandelbrot(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max)
+    {
+    FractalMathBase* fractalMath = new MandelBrotMath();
+
+    processFractal(ptrDevPixels, width, height, mathDomain, max, fractalMath);
+
+    delete fractalMath;
+    }
+
+// -------------------------
+// Implementation Julia
+// -------------------------
+__global__ void processJulia(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max)
+    {
+    FractalMathBase* fractalMath = new JuliaMath(-0.12, 0.85);
+
+    processFractal(ptrDevPixels, width, height, mathDomain, max, fractalMath);
+
+    delete fractalMath;
+    }
+
+__device__ void processFractal(uchar4* ptrDevPixels, int width, int height, DomaineMath mathDomain, int max, FractalMathBase* fractalMath)
+    {
     const int totalPixels = width * height;
 
-    const int threadId = Indice2D::tid();
-    const int nbThread = Indice2D::nbThread();
-    int s = threadId;
+    const int TID = Indice2D::tid();
+    const int NB_THREADS = Indice2D::nbThread();
+    int s = TID;
 
     // Position horizontal of the pixel
     int i;
     // Position vertical of the pixel
     int j;
-    // Color of pixels
+
+    double x;
+    double y;
+
     uchar4 color;
 
-    /*if(isMandelbrot)
-    {*/
-        MandelBrotMath fractalMath = MandelBrotMath();
+    while (s < totalPixels)
+	{
+	IndiceTools::toIJ(s, width, &i, &j);
 
-        while (s < totalPixels)
-        {
-            IndiceTools::toIJ(s, width, &i, &j);
+	mathDomain.toXY(i, j, &x, &y);
+	fractalMath->colorXY(&color, x, y, max);
 
-            double x;
-            double y;
+	ptrDevPixels[s] = color;
 
-            mathDomain.toXY(i, j, &x, &y);
-            fractalMath.colorXY(&color, x, y, max);
-
-            ptrTabPixels[s] = color;
-
-            s += nbThread;
-        }
-    /*}
-    else
-    {
-        JuliaMath fractalMath = JuliaMath(-0.12, 0.85);
-
-        while (s < totalPixels)
-        {
-            IndiceTools::toIJ(s, width, &i, &j);
-
-            double x;
-            double y;
-
-            mathDomain.toXY(i, j, &x, &y);
-            fractalMath.colorXY(&color, x, y, max);
-
-            ptrTabPixels[s] = color;
-
-            s += nbThread;
-        }
-    }*/
-}
+	s += NB_THREADS;
+	}
+    }
