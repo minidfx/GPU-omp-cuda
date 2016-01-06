@@ -22,5 +22,5 @@ AnimableFonctionel_I *NewtonFactory::createGenerator()
     DomaineMath *ptrMathDomain = new DomaineMath(-2, -2, 2, 2);
     NewtonMath *ptrFractalMath = new NewtonMath(0.12);
 
-    return new NewtonGraphicGenerator(width, height, nMax, ptrMathDomain, ptrFractalMath, "OMP Newton Graphic Generator");
+    return new NewtonGraphicGenerator(width, height, nMax, ptrMathDomain, ptrFractalMath, "OMP Newton (zoom enabled)");
 }

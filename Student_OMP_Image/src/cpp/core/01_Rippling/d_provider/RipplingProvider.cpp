@@ -43,7 +43,7 @@ Animable_I* RipplingProvider::createMOO(void)
     int dw = 640;
     int dh = 640;
 
-    return new RipplingMOO(dw, dh, dt);
+    return new RipplingMOO(dw, dh, dt, "OMP Rippling");
     }
 
 /*--------------------------------------*\

@@ -5,14 +5,14 @@
 #include "MandelBrotMath.h"
 
 ImageFonctionel* MandelbrotFactory::createGL()
-{
+    {
     AnimableFonctionel_I* generator = MandelbrotFactory::createGenerator();
 
     return new ImageFonctionel(generator);
-}
+    }
 
 AnimableFonctionel_I* MandelbrotFactory::createGenerator()
-{
+    {
     const int width = 0.8 * 1000;
     const int height = 0.5 * 1000;
 
@@ -22,5 +22,5 @@ AnimableFonctionel_I* MandelbrotFactory::createGenerator()
     const int nMin = 30;
     const int nMax = 100;
 
-    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, ptrFractalMath, "OMP Mandelbrot Graphic Generator");
-}
+    return new GraphicGenerator(width, height, nMin, nMax, ptrMathDomain, ptrFractalMath, "OMP Mandelbrot (zoom enabled)");
+    }

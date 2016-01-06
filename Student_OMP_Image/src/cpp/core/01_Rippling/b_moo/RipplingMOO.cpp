@@ -29,12 +29,13 @@ using std::string;
  |*		Public			*|
  \*-------------------------------------*/
 
-RipplingMOO::RipplingMOO(unsigned int w, unsigned int h, float dt) : math(*(new RipplingMath(w, h)))
+RipplingMOO::RipplingMOO(unsigned int w, unsigned int h, float dt, string title) : math(*(new RipplingMath(w, h)))
     {
     // Inputs
     this->w = w;
     this->h = h;
     this->dt = dt;
+    this->title = title;
 
     // Tools
     this->t = 0;
@@ -128,7 +129,7 @@ int RipplingMOO::getH()
  */
 string RipplingMOO::getTitle()
     {
-    return "OMP Rippling";
+    return this->title;
     }
 
 /*-------------*\

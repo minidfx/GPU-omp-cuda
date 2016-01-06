@@ -22,7 +22,7 @@ class RipplingMOO: public Animable_I
 
     public:
 
-	RipplingMOO(unsigned int w, unsigned int h, float dt);
+	RipplingMOO(unsigned int w, unsigned int h, float dt, string title);
 	virtual ~RipplingMOO(void);
 
 	/*--------------------------------------*\
@@ -60,6 +60,7 @@ class RipplingMOO: public Animable_I
 	double dt;
 	unsigned int w;
 	unsigned int h;
+	string title;
 
 	// Tools
 	double t;

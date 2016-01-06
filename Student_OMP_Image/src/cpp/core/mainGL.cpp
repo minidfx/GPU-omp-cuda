@@ -16,17 +16,19 @@ using std::endl;
 
 int mainGL(Settings& settings);
 
-int mainGL(Settings& settings) {
-  cout << "\n[OpenGL] mode" << endl;
+int mainGL(Settings& settings)
+    {
+    cout << "\n[OpenGL] mode" << endl;
 
-  GLUTImageViewers::init(settings.getArgc(), settings.getArgv());
+    GLUTImageViewers::init(settings.getArgc(), settings.getArgv());
 
-  //Viewer<RipplingProvider> rippling(0, 0);
-  //ViewerZoomable<MandelbrotFactory> mandelbrot(640, 0);
-  //ViewerZoomable<JuliaFactory> julia(0, 640);
-  ViewerZoomable<NewtonFactory> newton(0, 640);
+    //Viewer<RipplingProvider> rippling(10, 10);
 
-  GLUTImageViewers::runALL();  // Bloquant, Tant qu'une fenetre est ouverte
+    //ViewerZoomable<MandelbrotFactory> mandelbrot(10, 10);
+    //ViewerZoomable<JuliaFactory> julia(10, 10);
+    //ViewerZoomable<NewtonFactory> newton(10, 10);
 
-  return EXIT_SUCCESS;
-}
+    GLUTImageViewers::runALL();  // Bloquant, Tant qu'une fenetre est ouverte
+
+    return EXIT_SUCCESS;
+    }
