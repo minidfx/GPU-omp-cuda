@@ -25,7 +25,7 @@ int mainGL(Settings& settings)
     //Viewer<RipplingProvider> rippling(10, 10);
 
     //ViewerZoomable<MandelbrotFactory> mandelbrot(10, 10);
-    //ViewerZoomable<JuliaFactory> julia(10, 10);
+    //ViewerZoomable<JuliaFactory> julia(820, 10);
     //ViewerZoomable<NewtonFactory> newton(10, 10);
 
     GLUTImageViewers::runALL();  // Bloquant, Tant qu'une fenetre est ouverte
