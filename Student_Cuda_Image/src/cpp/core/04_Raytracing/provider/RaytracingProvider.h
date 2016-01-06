@@ -1,10 +1,8 @@
 #ifndef RAYTRACING_PROVIDER_H_
 #define RAYTRACING_PROVIDER_H_
 
-#include "Raytracing.h"
+#include "RayTracing.h"
 #include "Image.h"
-#include "ColorTools.h"
-
 
 /*----------------------------------------------------------------------*\
  |*			Declaration 					*|
@@ -14,13 +12,12 @@
  |*		Public			*|
  \*-------------------------------------*/
 
-class RaytracingProvider
+class RayTracingProvider
     {
     public:
 
-	static Raytracing* createMOO(void);
+	static RayTracing* create(void);
 	static Image* createGL(void);
-
     };
 
 #endif
@@ -28,4 +25,3 @@ class RaytracingProvider
 /*----------------------------------------------------------------------*\
  |*			End	 					*|
  \*---------------------------------------------------------------------*/
-

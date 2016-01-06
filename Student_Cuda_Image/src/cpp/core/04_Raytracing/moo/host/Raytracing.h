@@ -4,10 +4,9 @@
 #include "cudaTools.h"
 #include "Animable_I.h"
 #include "MathTools.h"
+#include "VariateurI.h"
 #include "Sphere.h"
-#include "VariateurF.h"
 
-using cpu::IntervalF;
 /*----------------------------------------------------------------------*\
  |*			Declaration 					*|
  \*---------------------------------------------------------------------*/
@@ -16,7 +15,7 @@ using cpu::IntervalF;
  |*		Public			*|
  \*-------------------------------------*/
 
-class Raytracing: public Animable_I
+class RayTracing: public Animable_I
     {
 	/*--------------------------------------*\
 	|*		Constructor		*|
@@ -24,9 +23,8 @@ class Raytracing: public Animable_I
 
     public:
 
-	//Raytracing(int w, int h, float dt);
-	Raytracing(int w, int h, IntervalF dt);
-	virtual ~Raytracing(void);
+	RayTracing(int w, int h, int nSphere, float dt, int memoryType);
+	virtual ~RayTracing(void);
 
 	/*--------------------------------------*\
 	 |*		Methodes		*|
@@ -38,8 +36,6 @@ class Raytracing: public Animable_I
 	|*   Override Animable_I   *|
 	 \*------------------------*/
 
-	virtual int RandomInRange(int x, int y);
-	virtual float RandomFloat(float a, float b);
 	/**
 	 * Call periodicly by the api
 	 */
@@ -54,7 +50,8 @@ class Raytracing: public Animable_I
 	virtual int getW();
 	virtual int getH();
 
-
+    private:
+	void copySpheresToConstantMemory();
 
 	/*--------------------------------------*\
 	 |*		Attributs		*|
@@ -65,27 +62,25 @@ class Raytracing: public Animable_I
 	// Inputs
 	int w;
 	int h;
-
+	float dt;
+	int nSphere;
 
 	// Tools
 	dim3 dg;
 	dim3 db;
 	float t;
+	Sphere* ptrSpheres;
+	Sphere* ptrDevSpheres;
+	size_t sizeSpheres;
+
+	void (RayTracing::*ptrProcessFunction)(uchar4* ptrDevPixels, int w, int h);
+
+	void processGM(uchar4* ptrDevPixels, int w, int h);
+	void processCM(uchar4* ptrDevPixels, int w, int h);
+	void processSM(uchar4* ptrDevPixels, int w, int h);
 
 	//Outputs
 	string title;
-	Sphere *ptrSpheres;
-	Sphere *ptrDevSpheres;
-	int spheresCount = 1535;
-
-	VariateurF variateurF;
-
-
-//SM
-	size_t size;
-
-
-
     };
 
 #endif

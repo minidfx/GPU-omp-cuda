@@ -1,10 +1,10 @@
 #ifndef RAYTRACING_MATH_H_
 #define RAYTRACING_MATH_H_
-#include "math.h"
-#include "Sphere.h"
+
+#include <math.h>
+#include <cfloat>
 #include "ColorTools.h"
-
-
+#include "Sphere.h"
 
 /*----------------------------------------------------------------------*\
  |*			Declaration 					*|
@@ -14,92 +14,91 @@
  |*		Public			*|
  \*-------------------------------------*/
 
-/**
- * Dans un header only pour preparer la version cuda
- */
-class RaytracingMath
+class RayTracingMath
     {
 
 	/*--------------------------------------*\
-	|*		Constructeur		*|
+	|*		Constructor		*|
 	 \*-------------------------------------*/
 
     public:
 
-	__device__ RaytracingMath(unsigned int w, unsigned int h)
-	    {
-	    this->dim2 = w / 2;
-	    }
 	__device__
-	 virtual ~RaytracingMath(void)
+	RayTracingMath(Sphere* ptrDevSpheres, int n, float t)
 	    {
-	    //rien
+        this->ptrDevSpheres = ptrDevSpheres;
+        this->n = n;
+        this->t = t;
+	    }
+
+	__device__
+	virtual ~RayTracingMath(void)
+	    {
+	    //nothing
 	    }
 
 	/*--------------------------------------*\
-	|*		Methode			*|
+	|*		Methodes		*|
 	 \*-------------------------------------*/
 
     public:
 
-	/**
-	 * ptrColor represente le pixel (i,j) de l'image. uchar pour 4 cannaux color (r,g,b,alpha) chacun dans [0,255]
-	 */
 	__device__
-	void colorIJ(uchar4* ptrColorIJ, int i, int j, float t, Sphere *ptrSpheres, int spheresCount)
+	void colorIJ(uchar4* ptrColor, float i, float j)
 	    {
+            float nearestZ = 0;
+            int nearestZindex = -1;
+            float nearestDz = 0;
 
+            for(int k = 0; k < this->n; k++)
+            {
+                Sphere* s = &ptrDevSpheres[k];
+                float2 xy;
+                xy.x = i;
+                xy.y = j;
+                float hSquared = s->hSquared(xy);
 
+                if(s->isBelow(hSquared))
+                {
+                    float dz = s->dz(hSquared);
+                    float z = s->distance(dz);
 
-			xySol.x = i;
-			xySol.y = j;
-			float hue = -1; // Pour faire du noir par d������faut
+                    if (z < nearestZ || nearestZindex < 0)
+                    {
+                        nearestZ = z;
+                        nearestZindex = k;
+                        nearestDz = dz;
+                    }
+                }
 
-			// On itere le tableau de sphere pour savoir si il y en a par dessus le pixel
-			for(int i = 0; i<spheresCount; i++){ // on a mis 2 en attendant...
-				hCarre = ptrSpheres[i].hCarre(xySol);
-				if(ptrSpheres[i].isEnDessous(hCarre)){
-					dz = ptrSpheres[i].dz(hCarre);
-					ptrSpheres[i].distance(dz);
-					brightness = ptrSpheres[i].brightness(dz);
-					//hue = ptrSpheres[i].c;
-					//hue = ptrSpheres[i].getHueStart();
-					//ptrSpheres[i].setT();
-					hue = ptrSpheres[i].hue(t);
-					//hue = fmodf(ptrSpheres[i].getHueStart()+t,1.0f);
+                ptrColor->w = 255; // opaque
+            }
 
-
-				}
-			}
-
-
-			// Si il n'y en a pas la hue reste ������ sa valeur initiale et on colore en noir
-			if(hue == -1){
-				ptrColorIJ->x = 0;
-				ptrColorIJ->y = 0;
-				ptrColorIJ->z = 0;
-			}
-			else
-			    {
-			    ColorTools::HSB_TO_RVB(hue,1,brightness, ptrColorIJ);
-			    }
-
-
-
-		    ptrColorIJ->w = 255; // opaque
+            // is the pixel below a sphere ?
+            if (nearestZindex >= 0)
+            {
+                Sphere* s = &this->ptrDevSpheres[nearestZindex];
+                ColorTools::HSB_TO_RVB(s->hue(t), 1.0f, s->brightness(nearestDz), ptrColor);
+            }
+            else
+            {
+                ptrColor->x = 0;
+                ptrColor->y = 0;
+                ptrColor->z = 0;
+            }
 	    }
 
-    private:
 	/*--------------------------------------*\
-	|*		Attribut		*|
+	|*		Attributs		*|
 	 \*-------------------------------------*/
 
-	// Tools
-	double dim2; //=dim/2
-	float2 xySol;
-	float hCarre;
-	float dz;
-	float brightness;
+ private:
+     // inputs
+     Sphere* ptrDevSpheres;
+     int n;
+     float t;
+
+     // tools
 
     };
 

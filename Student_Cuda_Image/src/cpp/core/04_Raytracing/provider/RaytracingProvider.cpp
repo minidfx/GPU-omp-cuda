@@ -1,6 +1,5 @@
-#include "RaytracingProvider.h"
-
-
+#include "RayTracingProvider.h"
+#include "MathTools.h"
 
 /*----------------------------------------------------------------------*\
  |*			Declaration 					*|
@@ -29,21 +28,21 @@
 /*-----------------*\
  |*	static	   *|
  \*----------------*/
- Image* RaytracingProvider::createGL(void)
-     {
-     return new Image(createMOO());
-     }
 
-Raytracing* RaytracingProvider::createMOO()
+RayTracing* RayTracingProvider::create()
     {
-   // float dt = 1;
+    int dw = 500;
+    int dh = 500;
 
-    IntervalF dt(0,1);
+    float dt = 60.0f / 1000.0f;
+    int nSphere = 100;
 
-    int dw = 64 * 16; // =32*30=960
-    int dh = 64 * 16; // =32*30=960
+    return new RayTracing(dw, dh, nSphere, dt, 1);
+    }
 
-    return new Raytracing(dw, dh, dt);
+Image* RayTracingProvider::createGL(void)
+    {
+    return new Image(create());
     }
 
 /*--------------------------------------*\
