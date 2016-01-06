@@ -17,5 +17,5 @@ Animable_I* HeatTransfertProvider::createMOO()
     float imageInit[WH];
     float imageHeater[WH];
 
-    return new HeatTransfert(w, h, imageInit, imageHeater, 0.25);
+    return new HeatTransfert(w, h, imageInit, imageHeater, 0.25, "CUDA HeatTransfert");
     }

@@ -17,7 +17,7 @@ class Rippling: public Animable_I
 
     public:
 
-	Rippling(int w, int h, float dt);
+	Rippling(int w, int h, float dt, string title);
 	virtual ~Rippling(void);
 
 	/*--------------------------------------*\

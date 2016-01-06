@@ -9,7 +9,7 @@ using cpu::IntervalI;
 
 extern __global__ void mandelbrot(uchar4* ptrDevPixels, int w, int h, DomaineMath domaineMath, int n);
 
-MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) :
+MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax, string title) :
 	variateurN(IntervalI(nMin, nMax), 1)
     {
     // Inputs
@@ -17,7 +17,7 @@ MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) :
     this->h = h;
     this->n = nMax;
 
-    this->ptrDomaineMathInit = new DomaineMath(-2.1, -1.3, 0.8, 1.3); // Mandelbrot
+    this->ptrDomaineMathInit = new DomaineMath(-2.1, -1.3, 0.8, 1.3);
 
     // Tools
     this->dg = dim3(16, 8, 1); // disons a optimiser
@@ -27,7 +27,7 @@ MandelbrotMGPU::MandelbrotMGPU(int w, int h, int nMin, int nMax) :
     this->size = sizeof(uchar4) * w * (h / 2);
 
     //Outputs
-    this->title = "CUDA MandelbrotMGPU (Zoomable)";
+    this->title = title;
 
     // Memory management
 
@@ -77,7 +77,7 @@ void MandelbrotMGPU::process(uchar4* ptrDevPixels0, int w, int h, const DomaineM
 mandelbrot<<<dg,db>>>(ptrDevTab1,w,h/2,dmBottom, n);
 
 	    // MM copie sur device0 (affichage)
-	    	HANDLE_ERROR(cudaMemcpy(ptrDevBottomImage0, ptrDevTab1, size, cudaMemcpyDeviceToDevice));
+	    		HANDLE_ERROR(cudaMemcpy(ptrDevBottomImage0, ptrDevTab1, size, cudaMemcpyDeviceToDevice));
 	HANDLE_ERROR(cudaSetDevice(deviceID));
 	}
     }
@@ -89,7 +89,7 @@ mandelbrot<<<dg,db>>>(ptrDevTab1,w,h/2,dmBottom, n);
  */
 void MandelbrotMGPU::animationStep()
 {
-this->n = variateurN.varierAndGet(); // in [0,2pi]
+this->n = variateurN.varierAndGet();
 }
 
 /*--------------*\

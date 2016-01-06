@@ -10,7 +10,7 @@ using std::endl;
 __global__
 extern void rippling(uchar4* ptrDevPixels, int w, int h, float t);
 
-Rippling::Rippling(int w, int h, float dt)
+Rippling::Rippling(int w, int h, float dt, string title)
     {
     assert(w == h);
 
@@ -26,9 +26,8 @@ Rippling::Rippling(int w, int h, float dt)
     this->t = 0;
     
     // Outputs
-    this->title = "CUDA Rippling";
+    this->title = title;
 
-    //print(dg, db);
     Device::assertDim(dg, db);
     }
 
@@ -38,7 +37,7 @@ Rippling::~Rippling()
 
 void Rippling::process(uchar4* ptrDevPixels, int w, int h)
     {
-rippling<<<dg,db>>>(ptrDevPixels, w, h, t);
+rippling<<<this->dg, this->db>>>(ptrDevPixels, w, h, t);
 }
 
 void Rippling::animationStep()

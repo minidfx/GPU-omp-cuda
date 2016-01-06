@@ -4,11 +4,12 @@
 #include "Image.h"
 #include "Animable_I.h"
 
-class HeatTransfertProvider {
+class HeatTransfertProvider
+    {
 
-  public:
-    static Image* createGL();
-  	static Animable_I* createMOO();
-};
+    public:
+	static Image* createGL();
+	static Animable_I* createMOO();
+    };
 
 #endif

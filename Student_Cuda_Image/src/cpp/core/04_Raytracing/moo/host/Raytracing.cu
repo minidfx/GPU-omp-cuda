@@ -47,7 +47,7 @@ extern __global__ void rayTracingSM(uchar4* ptrDevPixels, int w, int h, Sphere* 
 // Global memory : 1
 // Constant memory : 2
 // Shared memory : 3
-RayTracing::RayTracing(int w, int h, int nSphere, float dt, int memoryType)
+RayTracing::RayTracing(int w, int h, int nSphere, float dt, int memoryType, string title)
     {
     // Inputs
     this->w = w;
@@ -65,7 +65,7 @@ RayTracing::RayTracing(int w, int h, int nSphere, float dt, int memoryType)
     this->t = 0.0f;
 
     //Outputs
-    this->title = "CUDA RayTracing";
+    this->title = title;
 
     // Check:
     Device::assertDim(dg, db);

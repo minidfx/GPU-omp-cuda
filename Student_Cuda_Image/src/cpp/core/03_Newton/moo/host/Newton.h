@@ -11,7 +11,7 @@ class Newton : public AnimableFonctionel_I
 
   public:
 
-      Newton(int w, int h, int nMin, int nMax);
+      Newton(int w, int h, int nMin, int nMax, string title);
 
       virtual ~Newton(void);
 

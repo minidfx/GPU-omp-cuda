@@ -39,14 +39,14 @@ Newton* NewtonProvider::create()
     int nMin = 1;
     int nMax = 50;
 
-    return new Newton(dw, dh, nMin, nMax);
+    return new Newton(dw, dh, nMin, nMax, "CUDA Newton (zoom enabled)");
     }
 
 ImageFonctionel* NewtonProvider::createGL(void)
     {
     ColorRGB_01* ptrColorTitre = new ColorRGB_01(0, 0, 0);
 
-    return new ImageFonctionel(create(), ptrColorTitre); // both ptr destroy by destructor of ImageFonctionel
+    return new ImageFonctionel(create(), ptrColorTitre);
     }
 
 /*--------------------------------------*\

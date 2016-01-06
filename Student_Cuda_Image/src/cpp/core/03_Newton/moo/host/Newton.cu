@@ -8,9 +8,9 @@ using cpu::IntervalI;
 
 extern __global__ void newton(uchar4 *ptrDevPixels, int w, int h, DomaineMath domaineMath, int n);
 
-Newton::Newton(int w, int h, int nMin, int nMax) :
-        variateurN(IntervalI(nMin, nMax), 1)
-{
+Newton::Newton(int w, int h, int nMin, int nMax, string title) :
+	variateurN(IntervalI(nMin, nMax), 1)
+    {
     // Inputs
     this->w = w;
     this->h = h;
@@ -22,49 +22,48 @@ Newton::Newton(int w, int h, int nMin, int nMax) :
     this->db = dim3(16, 16, 1); // disons a optimiser
 
     //Outputs
-    this->title = "Newton_CUDA (Zoomable)";
+    this->title = title;
 
     // Check:
-    //print(dg, db);
     Device::assertDim(dg, db);
-}
+    }
 
 Newton::~Newton()
-{
-    delete ptrDomaineMathInit;
-}
+    {
+    delete this->ptrDomaineMathInit;
+    }
 
 void Newton::process(uchar4 *ptrDevPixels, int w, int h, const DomaineMath &domaineMath)
-{
-    newton <<<dg, db>>> (ptrDevPixels, w, h, domaineMath, n);
+    {
+newton <<<this->dg, this->db>>> (ptrDevPixels, w, h, domaineMath, n);
 }
 
 void Newton::animationStep()
 {
-    this->n = variateurN.varierAndGet(); // in [0,2pi]
+this->n = variateurN.varierAndGet(); // in [0,2pi]
 }
 
 DomaineMath *Newton::getDomaineMathInit(void)
 {
-    return ptrDomaineMathInit;
+return this->ptrDomaineMathInit;
 }
 
 float Newton::getAnimationPara(void)
 {
-    return n;
+return this->n;
 }
 
 int Newton::getW(void)
 {
-    return w;
+return this->w;
 }
 
 int Newton::getH(void)
 {
-    return h;
+return this->h;
 }
 
 string Newton::getTitle(void)
 {
-    return title;
+return this->title;
 }

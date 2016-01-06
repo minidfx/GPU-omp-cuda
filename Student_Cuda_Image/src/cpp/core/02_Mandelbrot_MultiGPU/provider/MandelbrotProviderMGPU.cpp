@@ -40,14 +40,14 @@ MandelbrotMGPU* MandelbrotProviderMGPU::create()
     int nMin = 30;
     int nMax = 100;
 
-    return new MandelbrotMGPU(dw, dh, nMin, nMax);
+    return new MandelbrotMGPU(dw, dh, nMin, nMax, "CUDA Mandelbrot Multi GPU (zoom enabled)");
     }
 
 ImageFonctionel* MandelbrotProviderMGPU::createGL(void)
     {
-    ColorRGB_01* ptrColorTitre=new ColorRGB_01(0,0,0);
+    ColorRGB_01* ptrColorTitre = new ColorRGB_01(0, 0, 0);
 
-    return new ImageFonctionel(create(),ptrColorTitre); // both ptr destroy by destructor of ImageFonctionel
+    return new ImageFonctionel(create(), ptrColorTitre);
     }
 
 /*--------------------------------------*\

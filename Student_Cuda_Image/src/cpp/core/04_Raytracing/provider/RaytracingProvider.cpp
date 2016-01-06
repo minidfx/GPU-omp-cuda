@@ -37,7 +37,7 @@ RayTracing* RayTracingProvider::create()
     float dt = 60.0f / 1000.0f;
     int nSphere = 100;
 
-    return new RayTracing(dw, dh, nSphere, dt, 1);
+    return new RayTracing(dw, dh, nSphere, dt, 3, "CUDA RayTracing");
     }
 
 Image* RayTracingProvider::createGL(void)

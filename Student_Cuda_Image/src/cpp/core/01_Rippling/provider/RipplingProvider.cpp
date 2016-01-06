@@ -15,5 +15,5 @@ Animable_I* RipplingProvider::createMOO()
     int dw = 500;
     int dh = 500;
 
-    return new Rippling(dw, dh, dt);
+    return new Rippling(dw, dh, dt, "CUDA Ruppling");
     }

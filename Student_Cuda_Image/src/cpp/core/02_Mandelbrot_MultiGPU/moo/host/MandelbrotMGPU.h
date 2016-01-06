@@ -22,7 +22,7 @@ class MandelbrotMGPU: public AnimableFonctionel_I
 
     public:
 
-	MandelbrotMGPU(int w, int h, int nMin, int nMax);
+	MandelbrotMGPU(int w, int h, int nMin, int nMax, string title);
 	virtual ~MandelbrotMGPU(void);
 
 	/*--------------------------------------*\

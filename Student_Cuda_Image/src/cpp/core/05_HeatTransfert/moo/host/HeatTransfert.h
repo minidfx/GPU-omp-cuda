@@ -8,7 +8,7 @@ class HeatTransfert: public Animable_I
     {
 
     public:
-	HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed);
+	HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed, string title);
 	virtual ~HeatTransfert();
 
 	virtual void process(uchar4* ptrDevPixels, int w, int h);

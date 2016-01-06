@@ -23,7 +23,7 @@ class RayTracing: public Animable_I
 
     public:
 
-	RayTracing(int w, int h, int nSphere, float dt, int memoryType);
+	RayTracing(int w, int h, int nSphere, float dt, int memoryType, string title);
 	virtual ~RayTracing(void);
 
 	/*--------------------------------------*\

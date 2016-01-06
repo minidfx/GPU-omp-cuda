@@ -8,9 +8,9 @@
 
 __global__ void diffuse(float* ptrImageInput, float* ptrImageOutput, unsigned int w, unsigned int h, float propSpeed);
 __global__ void crush(float* ptrImageHeater, float* ptrImage, unsigned int size);
-__global__ void toScreen(float* ptrImage, uchar4* ptrPixels, unsigned int size);
+__global__ void display(float* ptrImage, uchar4* ptrPixels, unsigned int size);
 
-HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed)
+HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed, string title)
     {
     // Inputs
     this->w = w;
@@ -24,6 +24,8 @@ HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit
     // Cuda grid dimensions
     this->dg = dim3(8, 8, 1);
     this->db = dim3(16, 16, 1);
+
+    // Check
     Device::assertDim(dg, db);
 
     for (int s = 0; s < this->wh; s++)
@@ -79,13 +81,13 @@ if (this->iteration % 2 == 0)
     {
 diffuse<<<dg,db>>>(this->ptrDevImageA, this->ptrDevImageB, this->w, this->h, this->propSpeed);
 crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageB, this->wh);
-toScreen<<<dg,db>>>(this->ptrDevImageB, ptrDevPixels, this->wh);
+display<<<dg,db>>>(this->ptrDevImageB, ptrDevPixels, this->wh);
 }
 else
 {
 diffuse<<<dg,db>>>(this->ptrDevImageB, this->ptrDevImageA, this->w, this->h, this->propSpeed);
 crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->wh);
-toScreen<<<dg,db>>>(this->ptrDevImageA, ptrDevPixels, this->wh);
+display<<<dg,db>>>(this->ptrDevImageA, ptrDevPixels, this->wh);
 }
 }
 
