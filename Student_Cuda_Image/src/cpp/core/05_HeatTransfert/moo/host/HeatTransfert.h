@@ -1,66 +1,42 @@
-#ifndef HEAT_TRANSFERT_H_
-#define HEAT_TRANSFERT_H_
+#ifndef HEAT_TRANSFERT_MOO_H_
+#define HEAT_TRANSFERT_MOO_H_
 
-#include "cudaTools.h"
+#include "cudaType.h"
 #include "Animable_I.h"
-#include "MathTools.h"
-
-#define IMAGEWIDTH 800
-#define IMAGEHEIGHT 800
 
 class HeatTransfert: public Animable_I
     {
 
     public:
+	HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed);
+	virtual ~HeatTransfert();
 
-	HeatTransfert(int w, int h, float dt);
-	virtual ~HeatTransfert(void);
-
-    public:
-
-	/**
-	 * Call periodicly by the api
-	 */
 	virtual void process(uchar4* ptrDevPixels, int w, int h);
-	/**
-	 * Call periodicly by the api
-	 */
 	virtual void animationStep();
 
 	virtual float getAnimationPara();
-	virtual string getTitle();
 	virtual int getW();
 	virtual int getH();
-
-    private:
-
-	void initImages();
-	void memoryManagment();
+	virtual string getTitle();
 
     private:
 
 	// Inputs
-	int w;
-	int h;
-	float dt;
+	unsigned int w;
+	unsigned int h;
+	unsigned int wh;
 
-	// Tools
-	dim3 dg;
-	dim3 db;
-	int t;
-	bool isImageAInput;
-	int nbIterations;
-	int NB_ITERATION_AVEUGLE;
-
-	float* imageHeater;
-	float* imageInit;
+	// Images
 	float* ptrDevImageInit;
 	float* ptrDevImageHeater;
 	float* ptrDevImageA;
 	float* ptrDevImageB;
+	float propSpeed;
 
-	//Outputs
-	string title;
+	// Tools
+	unsigned int iteration;
+	dim3 dg;
+	dim3 db;
     };
 
 #endif

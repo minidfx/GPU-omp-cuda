@@ -1,53 +1,21 @@
 #include "HeatTransfertProvider.h"
+#include "HeatTransfert.h"
+#include "IndiceTools.h"
 
-
-/*----------------------------------------------------------------------*\
- |*			Declaration 					*|
- \*---------------------------------------------------------------------*/
-
-/*--------------------------------------*\
- |*		Imported	 	*|
- \*-------------------------------------*/
-
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-/*--------------------------------------*\
- |*		Private			*|
- \*-------------------------------------*/
-
-/*----------------------------------------------------------------------*\
- |*			Implementation 					*|
- \*---------------------------------------------------------------------*/
-
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-/*-----------------*\
- |*	static	   *|
- \*----------------*/
-
-HeatTransfert* HeatTransfertProvider::createMOO()
+Image* HeatTransfertProvider::createGL()
     {
-    float dt = 5;
-
-    int dw =  500;//16 * 80; // =32*30=960
-    int dh = 500;//16 * 80; // =32*30=960
-
-    return new HeatTransfert(dw, dh, dt);
+    Animable_I* ptrAnimable = HeatTransfertProvider::createMOO();
+    return new Image(ptrAnimable);
     }
 
- Image* HeatTransfertProvider::createGL(void)
-     {
-     return new Image(createMOO());
-     }
+Animable_I* HeatTransfertProvider::createMOO()
+    {
+    unsigned int w = 500;
+    unsigned int h = 500;
+    unsigned int WH = w * h;
 
-/*--------------------------------------*\
- |*		Private			*|
- \*-------------------------------------*/
+    float imageInit[WH];
+    float imageHeater[WH];
 
-/*----------------------------------------------------------------------*\
- |*			End	 					*|
- \*---------------------------------------------------------------------*/
+    return new HeatTransfert(w, h, imageInit, imageHeater, 0.25);
+    }

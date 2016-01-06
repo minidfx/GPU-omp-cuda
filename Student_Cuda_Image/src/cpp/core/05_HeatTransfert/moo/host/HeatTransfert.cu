@@ -1,155 +1,130 @@
 #include <iostream>
-#include <assert.h>
+#include <omp.h>
 
-#include "HeatTransfert.h"
+#include "cuda_runtime.h"
 #include "Device.h"
+#include "HeatTransfert.h"
+#include "IndiceTools.h"
 
-using std::cout;
-using std::endl;
+__global__ void diffuse(float* ptrImageInput, float* ptrImageOutput, unsigned int w, unsigned int h, float propSpeed);
+__global__ void crush(float* ptrImageHeater, float* ptrImage, unsigned int size);
+__global__ void toScreen(float* ptrImage, uchar4* ptrPixels, unsigned int size);
 
-extern __global__ void ecrasement(float* ptrImageInOutput, float* ptrImageHeater, int w, int h);
-extern __global__ void diffusion(float* ptrImageInput, float* ptrImageOutput, int w, int h);
-extern __global__ void toScreenImageHSB(uchar4* ptrDevPixels, float* ptrImageInput, int w, int h);
-
-HeatTransfert::HeatTransfert(int w, int h, float dt)
+HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float* ptrImageInit, float* ptrImageHeater, float propSpeed)
     {
-
     // Inputs
     this->w = w;
     this->h = h;
-    this->dt = dt;
+    this->wh = w * h;
 
     // Tools
-    this->dg = dim3(32, 4, 1);
-    this->db = dim3(64, 8, 1);
-    this->t = 0;
-    this->isImageAInput = true;
-    this->NB_ITERATION_AVEUGLE = 50;
-    this->nbIterations = 0;
+    this->iteration = 0;
+    this->propSpeed = propSpeed;
 
-    // Outputs
-    this->title = "CUDA HeatTransfert";
-
-    initImages();
-    memoryManagment();
-
-    //print(dg, db);
+    // Cuda grid dimensions
+    this->dg = dim3(8, 8, 1);
+    this->db = dim3(16, 16, 1);
     Device::assertDim(dg, db);
-    }
 
-HeatTransfert::~HeatTransfert()
-    {
-    delete[] imageHeater;
-    delete[] imageInit;
-
-    HANDLE_ERROR(cudaFree(ptrDevImageHeater));
-    HANDLE_ERROR(cudaFree(ptrDevImageInit));
-
-    this->ptrDevImageInit = NULL;
-    this->ptrDevImageHeater = NULL;
-    this->ptrDevImageA = NULL;
-    this->ptrDevImageB = NULL;
-    }
-
-/*-------------------------*\
- |*	Methode		    *|
- \*-------------------------*/
-
-void HeatTransfert::initImages()
-    {
-    imageHeater = new float[IMAGEWIDTH * IMAGEHEIGHT];
-
-    for (int i = 0; i < IMAGEWIDTH; i++)
+    for (int s = 0; s < this->wh; s++)
 	{
-	for (int j = 0; j < IMAGEHEIGHT; j++)
+	ptrImageInit[s] = 0.0;
+
+	int i, j;
+	IndiceTools::toIJ(s, w, &i, &j);
+
+	if (i >= 187 && i < 312 && j >= 187 && j < 312)
 	    {
-	    // Hot middle square
-	    if (i > 350 && i < 450 && j > 350 && j < 450)
-		imageHeater[i * IMAGEWIDTH + j] = 1.0;
-
-	    // COld diagonal square
-	    if (i >= 280 && i <= 520 && (i <= 310 || i >= 490) && j >= 280 && j <= 520 && (j <= 310 || j >= 490))
-		imageHeater[i * IMAGEWIDTH + j] = -0.2;
-
-	    // Hot square
-	    if (i >= 179 && i <= 621 && (i <= 195 || i >= 605 || (i >= 392 && i <= 408)) && j >= 179 && j <= 621 && (j <= 195 || j >= 605 || (j >= 392 && j <= 408)))
-		imageHeater[i * IMAGEWIDTH + j] = 1.0;
+	    ptrImageHeater[s] = 1.0;
+	    }
+	else if ((i >= 111 && i < 121 && j >= 111 && j < 121) || (i >= 111 && i < 121 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 111 && j < 121)
+		|| (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388))
+	    {
+	    ptrImageHeater[s] = 0.2;
+	    }
+	else
+	    {
+	    ptrImageHeater[s] = 0.0;
 	    }
 	}
 
-    imageInit = new float[IMAGEWIDTH * IMAGEHEIGHT];
-    }
+    size_t arraySize = sizeof(float) * wh;
+    HANDLE_ERROR(cudaMalloc(&this->ptrDevImageHeater, arraySize));
+    HANDLE_ERROR(cudaMalloc(&this->ptrDevImageInit, arraySize));
+    HANDLE_ERROR(cudaMalloc(&this->ptrDevImageA, arraySize));
+    HANDLE_ERROR(cudaMalloc(&this->ptrDevImageB, arraySize));
+    HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, ptrImageHeater, arraySize, cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, ptrImageInit, arraySize, cudaMemcpyHostToDevice));
 
-void HeatTransfert::memoryManagment()
-    {
-    // Global memory
-    this->ptrDevImageInit = NULL;
-    this->ptrDevImageHeater = NULL;
-    this->ptrDevImageA = NULL;
-    this->ptrDevImageB = NULL;
-    int size = IMAGEWIDTH * IMAGEHEIGHT * sizeof(float);
+    // Initialization
+crush<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageInit, this->wh);
+diffuse<<<this->dg, this->db>>>(this->ptrDevImageInit, this->ptrDevImageA, this->w, this->h, this->propSpeed);
+crush<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->wh);
+}
 
-    HANDLE_ERROR(cudaMalloc(&ptrDevImageInit, size));
-    HANDLE_ERROR(cudaMalloc(&ptrDevImageHeater, size));
-    HANDLE_ERROR(cudaMalloc(&ptrDevImageA, size));
-    HANDLE_ERROR(cudaMalloc(&ptrDevImageB, size));
+HeatTransfert::~HeatTransfert()
+{
+HANDLE_ERROR(cudaFree(this->ptrDevImageHeater));
+HANDLE_ERROR(cudaFree(this->ptrDevImageInit));
+HANDLE_ERROR(cudaFree(this->ptrDevImageA));
+HANDLE_ERROR(cudaFree(this->ptrDevImageB));
+}
 
-    HANDLE_ERROR(cudaMemset(ptrDevImageA, 0, size));
-    HANDLE_ERROR(cudaMemset(ptrDevImageB, 0, size));
-
-    HANDLE_ERROR(cudaMemcpy(ptrDevImageInit, this->imageInit, size, cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(ptrDevImageHeater, this->imageHeater, size, cudaMemcpyHostToDevice));
-    }
-
+/**
+ * Override
+ */
 void HeatTransfert::process(uchar4* ptrDevPixels, int w, int h)
+{
+if (this->iteration % 2 == 0)
     {
-    float* ptrImageInput = NULL;
-    float* ptrImageOutput = NULL;
-    if (this->isImageAInput)
-	{
-	ptrImageInput = ptrDevImageA;
-	ptrImageOutput = ptrDevImageB;
-	}
-    else
-	{
-	ptrImageInput = ptrDevImageB;
-	ptrImageOutput = ptrDevImageA;
-	}
+diffuse<<<dg,db>>>(this->ptrDevImageA, this->ptrDevImageB, this->w, this->h, this->propSpeed);
+crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageB, this->wh);
+toScreen<<<dg,db>>>(this->ptrDevImageB, ptrDevPixels, this->wh);
+}
+else
+{
+diffuse<<<dg,db>>>(this->ptrDevImageB, this->ptrDevImageA, this->w, this->h, this->propSpeed);
+crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->wh);
+toScreen<<<dg,db>>>(this->ptrDevImageA, ptrDevPixels, this->wh);
+}
+}
 
-    diffusion<<<dg,db>>>(ptrImageInput, ptrImageOutput, IMAGEWIDTH, IMAGEHEIGHT);
-
-    ecrasement<<<dg,db>>>(ptrImageOutput, ptrDevImageHeater, IMAGEWIDTH, IMAGEHEIGHT);
-
-    if(nbIterations % NB_ITERATION_AVEUGLE == 0)
-	{
-	    toScreenImageHSB<<<dg,db>>>(ptrDevPixels, ptrImageOutput, IMAGEWIDTH, IMAGEHEIGHT);
-	}
-
-    isImageAInput = !isImageAInput;
-    nbIterations++;
-    }
-
+/**
+ * Override
+ */
 void HeatTransfert::animationStep()
-    {
-    t += dt;
-    }
+{
+this->iteration++;
+}
 
-float HeatTransfert::getAnimationPara(void)
-    {
-    return t;
-    }
+/**
+ * Override
+ */
+float HeatTransfert::getAnimationPara()
+{
+return this->iteration;
+}
 
-int HeatTransfert::getW(void)
-    {
-    return w;
-    }
+/**
+ * Override
+ */
+int HeatTransfert::getW()
+{
+return this->w;
+}
 
-int HeatTransfert::getH(void)
-    {
-    return h;
-    }
+/**
+ * Override
+ */
+int HeatTransfert::getH()
+{
+return this->h;
+}
 
-string HeatTransfert::getTitle(void)
-    {
-    return title;
-    }
+/**
+ * Override
+ */
+string HeatTransfert::getTitle()
+{
+return "CUDA HeatTransfert";
+}

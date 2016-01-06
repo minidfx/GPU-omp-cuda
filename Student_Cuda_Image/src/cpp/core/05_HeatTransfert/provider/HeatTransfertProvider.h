@@ -1,29 +1,14 @@
 #ifndef HEAT_TRANSFERT_PROVIDER_H_
 #define HEAT_TRANSFERT_PROVIDER_H_
 
-#include "HeatTransfert.h"
 #include "Image.h"
+#include "Animable_I.h"
 
-/*----------------------------------------------------------------------*\
- |*			Declaration 					*|
- \*---------------------------------------------------------------------*/
+class HeatTransfertProvider {
 
-/*--------------------------------------*\
- |*		Public			*|
- \*-------------------------------------*/
-
-class HeatTransfertProvider
-    {
-    public:
-
-	static HeatTransfert* createMOO(void);
-	static Image* createGL(void);
-
-    };
+  public:
+    static Image* createGL();
+  	static Animable_I* createMOO();
+};
 
 #endif
-
-/*----------------------------------------------------------------------*\
- |*			End	 					*|
- \*---------------------------------------------------------------------*/
-
