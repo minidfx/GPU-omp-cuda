@@ -1,7 +1,7 @@
 {
-  "cmd": "cmd",
+  "cmd": "bash",
   "name": "Heat Transfert (06)",
-  "args": [ "/C", "build.bat" ],
+  "args": [ "build.sh" ],
   "sh": false,
   "env": {},
   "errorMatch": []
