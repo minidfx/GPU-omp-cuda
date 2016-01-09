@@ -19,10 +19,6 @@ Animable_I* HeatTransfertProvider::createMOO()
 {
   unsigned int width = 500;
   unsigned int height = 500;
-  unsigned int totalPixels = widht * height;
 
-  float imageInit[WH];
-  float imageHeater[WH];
-
-  return new HeatTransfert(w, h, imageInit, imageHeater, 0.25, "CUDA HeatTransfert");
+  return new HeatTransfert(width, height, 0.25, "CUDA HeatTransfert (new)");
 }

@@ -11,7 +11,7 @@ class HeatTransfert: public Animable_I
     /**
      * Constructs the service responsible for calculating heat between pixels which will be displayed into a window OpenGL.
      */
-    HeatTransfert(unsigned int width, unsigned int height, float* ptrImageInit, float* ptrImageHeater, float propagationSpeed, string title);
+    HeatTransfert(unsigned int width, unsigned int height, float propagationSpeed, string title);
 
     /**
      * Release
@@ -32,6 +32,7 @@ class HeatTransfert: public Animable_I
     unsigned int width;
     unsigned int height;
     unsigned int totalPixels;
+    string title;
 
     // Images
     float* ptrDevImageInit;
