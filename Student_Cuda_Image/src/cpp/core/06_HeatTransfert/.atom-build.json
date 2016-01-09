@@ -13,6 +13,10 @@
     "Run": {
       "cmd": "bash",
       "args": [ "run.sh" ]
+    },
+    "Clean": {
+      "cmd": "bash",
+      "args": [ "clean.sh" ]
     }
   }
 }
