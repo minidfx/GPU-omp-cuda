@@ -4,5 +4,15 @@
   "args": [ "build.sh" ],
   "sh": false,
   "env": {},
-  "errorMatch": []
+  "errorMatch": [],
+  "targets": {
+    "Compile & Run": {
+      "cmd": "bash",
+      "args": [ "build.sh" ]
+    },
+    "Run": {
+      "cmd": "bash",
+      "args": [ "run.sh" ]
+    }
+  }
 }
