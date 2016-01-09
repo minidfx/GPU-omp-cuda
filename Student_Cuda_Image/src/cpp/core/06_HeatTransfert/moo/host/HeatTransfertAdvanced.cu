@@ -3,14 +3,14 @@
 
 #include "cuda_runtime.h"
 #include "Device.h"
-#include "HeatTransfert.h"
+#include "HeatTransfertAdvanced.h"
 #include "IndiceTools.h"
 
-__global__ void diffuse(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-__global__ void crush(float* ptrImageHeater, float* ptrImage, unsigned int size);
-__global__ void display(float* ptrImage, uchar4* ptrPixels, unsigned int size);
+__global__ void diffuseAdvanced(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+__global__ void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int size);
+__global__ void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int size);
 
-HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float propagationSpeed, string title)
+HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title)
 {
     // Inputs
     this->width = width;
@@ -32,7 +32,8 @@ HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float propagationSp
     float imageInit[this->totalPixels];
     float imageHeater[this->totalPixels];
 
-    for (int s = 0; s < this->totalPixels; s++)
+    int s = 0;
+    while(s++ < this->totalPixels)
     {
         imageInit[s] = 0.0;
 
@@ -54,22 +55,28 @@ HeatTransfert::HeatTransfert(unsigned int w, unsigned int h, float propagationSp
         }
     }
 
+    // Size of all pixels of an image
     size_t arraySize = sizeof(float) * this->totalPixels;
+
+    // Allocating memory to GPU
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageHeater, arraySize));
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageInit, arraySize));
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageA, arraySize));
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageB, arraySize));
+
+    // Copy images from CPU to GPU
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, imageHeater, arraySize, cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, imageInit, arraySize, cudaMemcpyHostToDevice));
 
-    // Initialization
-    crush<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageInit, this->totalPixels);
-    diffuse<<<this->dg, this->db>>>(this->ptrDevImageInit, this->ptrDevImageA, width, height, propagationSpeed);
-    crush<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
+    // First run
+    crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageInit, this->totalPixels);
+    diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageInit, this->ptrDevImageA, width, height, propagationSpeed);
+    crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
 }
 
-HeatTransfert::~HeatTransfert()
+HeatTransfertAdvanced::~HeatTransfertAdvanced()
 {
+    // Release resources GPU side
     HANDLE_ERROR(cudaFree(this->ptrDevImageHeater));
     HANDLE_ERROR(cudaFree(this->ptrDevImageInit));
     HANDLE_ERROR(cudaFree(this->ptrDevImageA));
@@ -79,26 +86,26 @@ HeatTransfert::~HeatTransfert()
 /**
  * Override
  */
-void HeatTransfert::process(uchar4* ptrDevPixels, int width, int height)
+void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
 {
     if (this->iteration % 2 == 0)
     {
-        diffuse<<<dg,db>>>(this->ptrDevImageA, this->ptrDevImageB, this->width, this->height, this->propagationSpeed);
-        crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageB, this->totalPixels);
-        display<<<dg,db>>>(this->ptrDevImageB, ptrDevPixels, this->totalPixels);
+        diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageA, this->ptrDevImageB, this->width, this->height, this->propagationSpeed);
+        crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageB, this->totalPixels);
+        displayAdvanced<<<this->dg, this->db>>>(this->ptrDevImageB, ptrDevPixels, this->totalPixels);
     }
     else
     {
-        diffuse<<<dg,db>>>(this->ptrDevImageB, this->ptrDevImageA, this->width, this->height, this->propagationSpeed);
-        crush<<<dg,db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
-        display<<<dg,db>>>(this->ptrDevImageA, ptrDevPixels, this->totalPixels);
+        diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageB, this->ptrDevImageA, this->width, this->height, this->propagationSpeed);
+        crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
+        displayAdvanced<<<this->dg, this->db>>>(this->ptrDevImageA, ptrDevPixels, this->totalPixels);
     }
 }
 
 /**
  * Override
  */
-void HeatTransfert::animationStep()
+void HeatTransfertAdvanced::animationStep()
 {
     this->iteration++;
 }
@@ -106,7 +113,7 @@ void HeatTransfert::animationStep()
 /**
  * Override
  */
-float HeatTransfert::getAnimationPara()
+float HeatTransfertAdvanced::getAnimationPara()
 {
     return this->iteration;
 }
@@ -114,7 +121,7 @@ float HeatTransfert::getAnimationPara()
 /**
  * Override
  */
-int HeatTransfert::getW()
+int HeatTransfertAdvanced::getW()
 {
     return this->width;
 }
@@ -122,7 +129,7 @@ int HeatTransfert::getW()
 /**
  * Override
  */
-int HeatTransfert::getH()
+int HeatTransfertAdvanced::getH()
 {
     return this->height;
 }
@@ -130,7 +137,7 @@ int HeatTransfert::getH()
 /**
  * Override
  */
-string HeatTransfert::getTitle()
+string HeatTransfertAdvanced::getTitle()
 {
     return this->title;
 }

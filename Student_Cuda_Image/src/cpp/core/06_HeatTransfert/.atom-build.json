@@ -1,6 +1,6 @@
 {
   "cmd": "bash",
-  "name": "Heat Transfert (06)",
+  "name": "Compile",
   "args": [ "build.sh" ],
   "sh": false,
   "env": {},

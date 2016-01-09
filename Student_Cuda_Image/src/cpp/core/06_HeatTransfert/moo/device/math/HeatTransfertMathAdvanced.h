@@ -1,18 +1,18 @@
-#ifndef HEAT_TRANSFERT_MATH_H_
-#define HEAT_TRANSFERT_MATH_H_
+#ifndef HEAT_TRANSFERT_MATH_ADVANCED_H_
+#define HEAT_TRANSFERT_MATH_ADVANCED_H_
 
 /**
  * Dans un header only pour preparer la version cuda
  */
-class HeatTransfertMath
+class HeatTransfertMathAdvanced
     {
 
     public:
-	__device__ HeatTransfertMath()
+	__device__ HeatTransfertMathAdvanced()
 	    {
 	    }
 
-	__device__ ~HeatTransfertMath()
+	__device__ ~HeatTransfertMathAdvanced()
 	    {
 	    // Nothing special to do
 	    }

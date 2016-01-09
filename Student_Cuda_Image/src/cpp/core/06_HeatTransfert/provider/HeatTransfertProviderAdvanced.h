@@ -8,7 +8,7 @@
  * Service responsible for providing a model and an
  * image displaying the heat.
  */
-class HeatTransfertProvider
+class HeatTransfertProviderAdvanced
 {
   public:
 
