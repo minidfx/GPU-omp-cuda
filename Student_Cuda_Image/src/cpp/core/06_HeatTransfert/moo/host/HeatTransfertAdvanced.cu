@@ -32,7 +32,7 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     float imageInit[this->totalPixels];
     float imageHeater[this->totalPixels];
 
-    int s = 0;
+    unsigned int s = 0;
     while(s++ < this->totalPixels)
     {
         imageInit[s] = 0.0;
@@ -64,14 +64,15 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageA, arraySize));
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageB, arraySize));
 
+    // Set a known value to any array representing an image
+    HANDLE_ERROR(cudaMemset(ptrDevImageHeater, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(ptrDevImageInit, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(ptrDevImageA, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(ptrDevImageB, 0, arraySize));
+
     // Copy images from CPU to GPU
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, imageHeater, arraySize, cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, imageInit, arraySize, cudaMemcpyHostToDevice));
-
-    // First run
-    crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageInit, this->totalPixels);
-    diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageInit, this->ptrDevImageA, width, height, propagationSpeed);
-    crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
 }
 
 HeatTransfertAdvanced::~HeatTransfertAdvanced()
