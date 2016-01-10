@@ -8,7 +8,8 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
 __global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize);
 __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize);
 
-__device__ float computeHeat(float oldHeat, float* neighborsHeat, unsigned int nbNeighbors, float propagationSpeed);
+__device__ float computeHeat1(float oldHeat, float* neighborsHeat, unsigned int nbNeighbors, float propagationSpeed);
+__device__ float computeHeat2(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed);
 
 __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
 {
@@ -33,7 +34,7 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
       neighborsHeat[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
       neighborsHeat[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
 
-      ptrDevImageOutput[s] = computeHeat(ptrDevImageInput[s], neighborsHeat, 4, propagationSpeed);
+      ptrDevImageOutput[s] = computeHeat1(ptrDevImageInput[s], neighborsHeat, 4, propagationSpeed);
     }
     else
     {
@@ -77,15 +78,20 @@ __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsign
   }
 }
 
-__device__ float computeHeat(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
+__device__ float computeHeat2(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
 {
-    // Initialize the Heat with the previous one.
-    float newHeat = oldHeat;
+  // Not implemented
+}
 
-    for (int i = 0; i < countNeighbors; i++)
-    {
-        newHeat += propagationSpeed * (neighborsHeat[i] - oldHeat);
-    }
+__device__ float computeHeat1(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
+{
+  // Initialize the Heat with the previous one.
+  float newHeat = oldHeat;
 
-    return newHeat;
+  for (int i = 0; i < countNeighbors; i++)
+  {
+    newHeat += propagationSpeed * (neighborsHeat[i] - oldHeat);
+  }
+
+  return newHeat;
 }
