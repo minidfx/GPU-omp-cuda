@@ -7,8 +7,8 @@
 #include "IndiceTools.h"
 
 __global__ void diffuseAdvanced(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-__global__ void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int size);
-__global__ void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int size);
+__global__ void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
+__global__ void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
 
 HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title)
 {

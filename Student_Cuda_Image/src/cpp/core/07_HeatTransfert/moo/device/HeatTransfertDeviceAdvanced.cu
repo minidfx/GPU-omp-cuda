@@ -3,11 +3,12 @@
 #include "Indice2D.h"
 #include "IndiceTools.h"
 #include "ColorTools.h"
-#include "HeatTransfertMathAdvanced.h"
 
 __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-__global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int size);
-__global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int size);
+__global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize);
+__global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize);
+
+__device__ float computeHeat(float oldHeat, float* neighborsHeat, unsigned int nbNeighbors, float propagationSpeed);
 
 __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
 {
@@ -16,7 +17,6 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
   const int TID = Indice2D::tid();
 
   // Init service and variable required
-  HeatTransfertMathAdvanced math;
   unsigned int totalPixels = width * height;
   unsigned int s = TID;
 
@@ -33,7 +33,7 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
       neighborsHeat[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
       neighborsHeat[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
 
-      ptrDevImageOutput[s] = math.computeHeat(ptrDevImageInput[s], neighborsHeat, 4, propagationSpeed);
+      ptrDevImageOutput[s] = computeHeat(ptrDevImageInput[s], neighborsHeat, 4, propagationSpeed);
     }
     else
     {
@@ -44,13 +44,13 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
   }
 }
 
-__global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int size)
+__global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize)
 {
   const int NB_THREADS = Indice2D::nbThread();
   const int TID = Indice2D::tid();
 
   unsigned int s = TID;
-  while (s < size)
+  while (s < arraySize)
   {
     if (ptrDevImageHeater[s] > 0.0)
     {
@@ -61,19 +61,31 @@ __global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsi
   }
 }
 
-__global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int size)
+__global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize)
+{
+  const int NB_THREADS = Indice2D::nbThread();
+  const int TID = Indice2D::tid();
+
+  unsigned int s = TID;
+  while (s < arraySize)
+  {
+    float hue = 0.7 - ptrDevImage[s] * 0.7;
+    ColorTools::HSB_TO_RVB(hue, 1, 1, &ptrDevPixels[s]);
+    ptrDevPixels[s].w = 255;
+
+    s += NB_THREADS;
+  }
+}
+
+__device__ float computeHeat(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
+{
+    // Initialize the Heat with the previous one.
+    float newHeat = oldHeat;
+
+    for (int i = 0; i < countNeighbors; i++)
     {
-    const int NB_THREADS = Indice2D::nbThread();
-    const int TID = Indice2D::tid();
-
-    unsigned int s = TID;
-    while (s < size)
-	{
-
-	float hue = 0.7 - ptrDevImage[s] * 0.7;
-	ColorTools::HSB_TO_RVB(hue, 1, 1, &ptrDevPixels[s]);
-	ptrDevPixels[s].w = 255;
-
-	s += NB_THREADS;
-	}
+        newHeat += propagationSpeed * (neighborsHeat[i] - oldHeat);
     }
+
+    return newHeat;
+}
