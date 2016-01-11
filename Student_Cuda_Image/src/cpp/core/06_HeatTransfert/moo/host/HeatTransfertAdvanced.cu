@@ -1,16 +1,20 @@
 #include <iostream>
 #include <omp.h>
+#include <climits>
 
 #include "cuda_runtime.h"
 #include "Device.h"
-#include "HeatTransfertAdvanced.h"
 #include "IndiceTools.h"
+
+#include "HeatTransfertAdvanced.h"
+
+using cpu::IntervalI;
 
 __global__ void diffuseAdvanced(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
 __global__ void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
 __global__ void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
 
-HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title)
+HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title) : variateurN(IntervalI(0, INT_MAX), 1)
 {
     // Inputs
     this->width = width;
@@ -21,13 +25,16 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     // Tools
     this->iteration = 0;
     this->propagationSpeed = propagationSpeed;
+    this->NB_ITERATION_AVEUGLE = 20;
+    this->isBufferA = true;
 
     // Cuda grid dimensions
     this->dg = dim3(8, 8, 1);
     this->db = dim3(16, 16, 1);
 
     // Check
-    Device::assertDim(dg, db);
+    Device::assertDim(this->dg, this->db);
+    Device::printAll();
 
     float imageInit[this->totalPixels];
     float imageHeater[this->totalPixels];
@@ -89,18 +96,29 @@ HeatTransfertAdvanced::~HeatTransfertAdvanced()
  */
 void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
 {
-    if (this->iteration % 2 == 0)
-    {
-        diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageA, this->ptrDevImageB, this->width, this->height, this->propagationSpeed);
-        crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageB, this->totalPixels);
-        displayAdvanced<<<this->dg, this->db>>>(this->ptrDevImageB, ptrDevPixels, this->totalPixels);
-    }
-    else
-    {
-        diffuseAdvanced<<<this->dg, this->db>>>(this->ptrDevImageB, this->ptrDevImageA, this->width, this->height, this->propagationSpeed);
-        crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, this->ptrDevImageA, this->totalPixels);
-        displayAdvanced<<<this->dg, this->db>>>(this->ptrDevImageA, ptrDevPixels, this->totalPixels);
-    }
+  float* ptrImageOutput;
+  float* ptrImageInput;
+
+  if (this->isBufferA)
+  {
+    ptrImageInput = this->ptrDevImageA;
+    ptrImageOutput = this->ptrDevImageB;
+  }
+  else
+  {
+    ptrImageInput = this->ptrDevImageB;
+    ptrImageOutput = this->ptrDevImageA;
+  }
+
+  diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
+  crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
+
+  if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
+  {
+    displayAdvanced<<<this->dg, this->db>>>(ptrImageOutput, ptrDevPixels, this->totalPixels);
+  }
+
+  this->isBufferA = !this->isBufferA;
 }
 
 /**
@@ -108,7 +126,7 @@ void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
  */
 void HeatTransfertAdvanced::animationStep()
 {
-    this->iteration++;
+    this->iteration = this->variateurN.varierAndGet();
 }
 
 /**

@@ -3,6 +3,7 @@
 
 #include "cudaType.h"
 #include "Animable_I.h"
+#include "VariateurI.h"
 
 /**
  * Service responsible for calculating the color of a pixels.
@@ -52,6 +53,9 @@ class HeatTransfertAdvanced: public Animable_I
     unsigned int iteration;
     dim3 dg;
     dim3 db;
+    VariateurI variateurN;
+    int NB_ITERATION_AVEUGLE;
+    bool isBufferA;
 };
 
 #endif
