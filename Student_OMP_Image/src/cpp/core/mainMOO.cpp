@@ -6,9 +6,9 @@
 #include "Animateur.h"
 #include "AnimateurFonctionel.h"
 
-//#include "RipplingProvider.h"
-//#include "MandelbrotFactory.h"
-//#include "JuliaFactory.h"
+#include "RipplingProvider.h"
+#include "MandelbrotFactory.h"
+#include "JuliaFactory.h"
 #include "NewtonFactory.h"
 
 using std::cout;
