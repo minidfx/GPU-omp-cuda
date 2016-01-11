@@ -32,6 +32,7 @@ int mainFreeGL(Option& option)
     //animeAndDelete(MandelbrotFactory::createGenerator(), NB_ITERATION);
     //animeAndDelete(JuliaFactory::createGenerator(), NB_ITERATION);
     //animeAndDelete(RaytracingProvider::createMOO(), NB_ITERATION);
+    //animeAndDelete(HeatTransfertProviderAdvanced::createMOO(), NB_ITERATION);
 
     cout << "\n[FreeGL] end" << endl;
 
