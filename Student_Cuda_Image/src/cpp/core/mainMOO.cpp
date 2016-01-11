@@ -7,10 +7,11 @@
 #include "Animateur.h"
 #include "AnimateurFonctionel.h"
 
-//#include "RipplingProvider.h"
-//#include "MandelbrotFactory.h"
-//#include "JuliaFactory.h"
-//#include "RaytracingProvider.h"
+#include "RipplingProvider.h"
+#include "MandelbrotFactory.h"
+#include "JuliaFactory.h"
+#include "RayTracingProvider.h"
+#include "HeatTransfertProviderAdvanced.h"
 
 using std::cout;
 using std::endl;
