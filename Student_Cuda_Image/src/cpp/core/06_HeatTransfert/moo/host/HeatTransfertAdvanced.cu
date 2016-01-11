@@ -19,6 +19,7 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     // Inputs
     this->width = width;
     this->height = height;
+    
     this->totalPixels = width * height;
     this->title = title;
 
@@ -72,10 +73,10 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     HANDLE_ERROR(cudaMalloc(&this->ptrDevImageB, arraySize));
 
     // Set a known value to any array representing an image
-    HANDLE_ERROR(cudaMemset(ptrDevImageHeater, 0, arraySize));
-    HANDLE_ERROR(cudaMemset(ptrDevImageInit, 0, arraySize));
-    HANDLE_ERROR(cudaMemset(ptrDevImageA, 0, arraySize));
-    HANDLE_ERROR(cudaMemset(ptrDevImageB, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(this->ptrDevImageHeater, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(this->ptrDevImageInit, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(this->ptrDevImageA, 0, arraySize));
+    HANDLE_ERROR(cudaMemset(this->ptrDevImageB, 0, arraySize));
 
     // Copy images from CPU to GPU
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, imageHeater, arraySize, cudaMemcpyHostToDevice));
