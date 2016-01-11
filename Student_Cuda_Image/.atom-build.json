@@ -6,7 +6,7 @@
   "env": {},
   "errorMatch": [],
   "targets": {
-    "Run": {
+    "Compile & Run (command line)": {
       "cmd": "bash",
       "args": [ "run.sh" ]
     },
