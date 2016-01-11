@@ -8,8 +8,9 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
 __global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize);
 __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize);
 
-__device__ float computeHeat1(float oldHeat, float* neighborsHeat, unsigned int nbNeighbors, float propagationSpeed);
-__device__ float computeHeat2(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed);
+__device__ float computeHeat1(float oldHeat, float* neighborPixels, unsigned int nbNeighbors, float propagationSpeed);
+__device__ float computeHeat2(float oldHeat, float* neighborPixels, float propagationSpeed);
+__device__ float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed);
 
 __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
 {
@@ -28,13 +29,13 @@ __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutpu
 
     if (i > 0 && i < (height - 1) && j > 0 && j < (width - 1))
     {
-      float neighborsHeat[4];
-      neighborsHeat[0] = ptrDevImageInput[IndiceTools::toS(width, i - 1, j)];
-      neighborsHeat[1] = ptrDevImageInput[IndiceTools::toS(width, i + 1, j)];
-      neighborsHeat[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
-      neighborsHeat[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
+      float neighborPixels[4];
+      neighborPixels[0] = ptrDevImageInput[IndiceTools::toS(width, i - 1, j)];
+      neighborPixels[1] = ptrDevImageInput[IndiceTools::toS(width, i + 1, j)];
+      neighborPixels[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
+      neighborPixels[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
 
-      ptrDevImageOutput[s] = computeHeat1(ptrDevImageInput[s], neighborsHeat, 4, propagationSpeed);
+      ptrDevImageOutput[s] = computeHeat3(ptrDevImageInput[s], neighborPixels, propagationSpeed);
     }
     else
     {
@@ -78,19 +79,24 @@ __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsign
   }
 }
 
-__device__ float computeHeat2(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
+__device__ float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed)
 {
-  // Not implemented
+  return oldHeat + propagationSpeed * (neighborPixels[0] + neighborPixels[1] + neighborPixels[2] + neighborPixels[3] - 4 * oldHeat);
 }
 
-__device__ float computeHeat1(float oldHeat, float* neighborsHeat, unsigned int countNeighbors, float propagationSpeed)
+__device__ float computeHeat2(float oldHeat, float* neighborPixels, float propagationSpeed)
+{
+  return neighborPixels[0] + neighborPixels[1] + neighborPixels[2] + neighborPixels[3] + 4 * oldHeat / 2 * 4;
+}
+
+__device__ float computeHeat1(float oldHeat, float* neighborPixels, float propagationSpeed)
 {
   // Initialize the Heat with the previous one.
   float newHeat = oldHeat;
 
-  for (int i = 0; i < countNeighbors; i++)
+  for (int i = 0; i < 4; i++)
   {
-    newHeat += propagationSpeed * (neighborsHeat[i] - oldHeat);
+    newHeat += propagationSpeed * (neighborPixels[i] - oldHeat);
   }
 
   return newHeat;
