@@ -46,10 +46,10 @@ class HeatTransfertAdvanced: public Animable_I
     ParallelPatern parallelPattern;
 
     // Images
-    float* ptrDevImageInit;
-    float* ptrDevImageHeater;
-    float* ptrDevImageA;
-    float* ptrDevImageB;
+    float* ptrTabImageInit;
+    float* ptrTabImageHeater;
+    float* ptrTabImageA;
+    float* ptrTabImageB;
     float propagationSpeed;
 
     // Tools

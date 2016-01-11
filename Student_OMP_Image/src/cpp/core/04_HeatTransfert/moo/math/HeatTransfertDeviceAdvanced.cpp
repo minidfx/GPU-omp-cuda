@@ -13,78 +13,87 @@ float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed)
 
 void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
 {
-  // Calucul threads available
-  const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
-  const int TID = OmpTools::getTid();
-
-  // Init service and variable required
-  unsigned int totalPixels = width * height;
-  unsigned int s = TID;
-
-  while (s < totalPixels)
-  {
-    int i, j;
-    IndiceTools::toIJ(s, width, &i, &j);
-
-    if (i > 0 && i < (height - 1) && j > 0 && j < (width - 1))
+    #pragma omp parallel
     {
-      float neighborPixels[4];
-      neighborPixels[0] = ptrDevImageInput[IndiceTools::toS(width, i - 1, j)];
-      neighborPixels[1] = ptrDevImageInput[IndiceTools::toS(width, i + 1, j)];
-      neighborPixels[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
-      neighborPixels[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
+        // Calucul threads available
+        const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
+        const int TID = OmpTools::getTid();
 
-      ptrDevImageOutput[s] = computeHeat3(ptrDevImageInput[s], neighborPixels, propagationSpeed);
-    }
-    else
-    {
-      ptrDevImageOutput[s] = ptrDevImageInput[s];
-    }
+        // Init service and variable required
+        unsigned int totalPixels = width * height;
+        unsigned int s = TID;
 
-    s += NB_THREADS;
-  }
+        while (s < totalPixels)
+        {
+            int i, j;
+            IndiceTools::toIJ(s, width, &i, &j);
+
+            if (i > 0 && i < (height - 1) && j > 0 && j < (width - 1))
+            {
+                float neighborPixels[4];
+                neighborPixels[0] = ptrDevImageInput[IndiceTools::toS(width, i - 1, j)];
+                neighborPixels[1] = ptrDevImageInput[IndiceTools::toS(width, i + 1, j)];
+                neighborPixels[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
+                neighborPixels[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
+
+                ptrDevImageOutput[s] = computeHeat3(ptrDevImageInput[s], neighborPixels, propagationSpeed);
+            }
+            else
+            {
+                ptrDevImageOutput[s] = ptrDevImageInput[s];
+            }
+
+            s += NB_THREADS;
+        }
+    }
 }
 
 void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize)
 {
-  const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
-  const int TID = OmpTools::getTid();
-
-  unsigned int s = TID;
-  while (s < arraySize)
-  {
-    if (ptrDevImageHeater[s] > 0.0)
+    #pragma omp parallel
     {
-      ptrDevImage[s] = ptrDevImageHeater[s];
-    }
+        const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
+        const int TID = OmpTools::getTid();
 
-    s += NB_THREADS;
-  }
+        unsigned int s = TID;
+        while (s < arraySize)
+        {
+            if (ptrDevImageHeater[s] > 0.0)
+            {
+                ptrDevImage[s] = ptrDevImageHeater[s];
+            }
+
+            s += NB_THREADS;
+        }
+    }
 }
 
 void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize)
 {
-  const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
-  const int TID = OmpTools::getTid();
-  unsigned int s = TID;
+    #pragma omp parallel
+    {
+        const int NB_THREADS = OmpTools::setAndGetNaturalGranularity();
+        const int TID = OmpTools::getTid();
+        unsigned int s = TID;
 
-  float heatMax = 1.0;
-  float heatMin = 0.;
-  float hueMax = 0.;
-  float hueMin = 0.7;
+        float heatMax = 1.0;
+        float heatMin = 0.;
+        float hueMax = 0.;
+        float hueMin = 0.7;
 
-  CalibreurF calibreur(IntervalF(heatMin, heatMax), IntervalF(hueMin, hueMax));
+        CalibreurF calibreur(IntervalF(heatMin, heatMax), IntervalF(hueMin, hueMax));
 
-  while (s < arraySize)
-  {
-    float hue = ptrDevImage[s];
-    calibreur.calibrer(hue);
-    uchar4 p;
-    ColorTools::HSB_TO_RVB(hue, 1, 1, &p.x, &p.y, &p.z);
-    ptrDevPixels[s] = p;
+        while (s < arraySize)
+        {
+            float hue = ptrDevImage[s];
+            calibreur.calibrer(hue);
+            uchar4 p;
+            ColorTools::HSB_TO_RVB(hue, 1, 1, &p.x, &p.y, &p.z);
+            ptrDevPixels[s] = p;
 
-    s += NB_THREADS;
-  }
+            s += NB_THREADS;
+        }
+    }
 }
 
 float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed)

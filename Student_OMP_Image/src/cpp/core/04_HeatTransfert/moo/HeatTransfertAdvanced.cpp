@@ -1,7 +1,7 @@
 #include <iostream>
 #include <omp.h>
 #include <climits>
-#include <stdio.h>
+#include <cstring>
 
 #include "IndiceTools.h"
 
@@ -24,49 +24,46 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     // Tools
     this->iteration = 0;
     this->propagationSpeed = propagationSpeed;
-    this->NB_ITERATION_AVEUGLE = 20;
+    this->NB_ITERATION_AVEUGLE = 1;
     this->isBufferA = true;
 
-    float imageInit[this->totalPixels];
-    float imageHeater[this->totalPixels];
+    // Size of all pixels of an image
+    size_t arraySize = sizeof(float) * this->totalPixels;
+
+    // Allocates memory on Host
+    this->ptrTabImageHeater = (float*) malloc(arraySize);
+    this->ptrTabImageInit = (float*) malloc(arraySize);
+    this->ptrTabImageA = (float*) malloc(arraySize);
+    this->ptrTabImageB = (float*) malloc(arraySize);
+
+    // Set default values
+    memset(this->ptrTabImageHeater, 0, arraySize);
+    memset(this->ptrTabImageInit, 0, arraySize);
+    memset(this->ptrTabImageA, 0, arraySize);
+    memset(this->ptrTabImageB, 0, arraySize);
 
     unsigned int s = 0;
     while(s++ < this->totalPixels)
     {
-        imageInit[s] = 0.0;
+        this->ptrTabImageInit[s] = 0.0;
 
         int i, j;
         IndiceTools::toIJ(s, width, &i, &j);
 
         if (i >= 187 && i < 312 && j >= 187 && j < 312)
         {
-            imageHeater[s] = 1.0;
+            this->ptrTabImageHeater[s] = 1.0;
         }
         else if ((i >= 111 && i < 121 && j >= 111 && j < 121) || (i >= 111 && i < 121 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 111 && j < 121)
         || (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388))
         {
-            imageHeater[s] = 0.2;
+            this->ptrTabImageHeater[s] = 0.2;
         }
         else
         {
-            imageHeater[s] = 0.0;
+            this->ptrTabImageHeater[s] = 0.0;
         }
     }
-
-    // Size of all pixels of an image
-    size_t arraySize = sizeof(float) * this->totalPixels;
-
-    // Allocates memory on Host
-    this->ptrDevImageHeater = (float*) malloc(arraySize);
-    this->ptrDevImageInit = (float*) malloc(arraySize);
-    this->ptrDevImageA = (float*) malloc(arraySize);
-    this->ptrDevImageB = (float*) malloc(arraySize);
-
-    // Set default values
-    // memset(this->ptrDevImageHeater, 0, arraySize);
-    // memset(this->ptrDevImageInit, 0, arraySize);
-    // memset(this->ptrDevImageA, 0, arraySize);
-    // memset(this->ptrDevImageB, 0, arraySize);
 
     this->listener();
 }
@@ -74,10 +71,10 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
 HeatTransfertAdvanced::~HeatTransfertAdvanced()
 {
     // Release resources GPU side
-    free(this->ptrDevImageHeater);
-    free(this->ptrDevImageInit);
-    free(this->ptrDevImageA);
-    free(this->ptrDevImageB);
+    free(this->ptrTabImageHeater);
+    free(this->ptrTabImageInit);
+    free(this->ptrTabImageA);
+    free(this->ptrTabImageB);
 }
 
 /**
@@ -90,17 +87,17 @@ void HeatTransfertAdvanced::process(uchar4* ptrTabPixels, int width, int height)
 
   if (this->isBufferA)
   {
-    ptrImageInput = this->ptrDevImageA;
-    ptrImageOutput = this->ptrDevImageB;
+    ptrImageInput = this->ptrTabImageA;
+    ptrImageOutput = this->ptrTabImageB;
   }
   else
   {
-    ptrImageInput = this->ptrDevImageB;
-    ptrImageOutput = this->ptrDevImageA;
+    ptrImageInput = this->ptrTabImageB;
+    ptrImageOutput = this->ptrTabImageA;
   }
 
   diffuseAdvanced(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
-  crushAdvanced(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
+  crushAdvanced(this->ptrTabImageHeater, ptrImageOutput, this->totalPixels);
 
   if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
   {
