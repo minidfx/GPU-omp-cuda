@@ -1,0 +1,18 @@
+{
+  "cmd": "bash",
+  "name": "Compile GCC",
+  "args": [ "build.sh", "gcc" ],
+  "sh": false,
+  "env": {},
+  "errorMatch": [],
+  "targets": {
+    "Compile Intel": {
+      "cmd": "bash",
+      "args": [ "build.sh", "intel" ]
+    },
+    "Clean": {
+      "cmd": "bash",
+      "args": [ "clean.sh" ]
+    }
+  }
+}

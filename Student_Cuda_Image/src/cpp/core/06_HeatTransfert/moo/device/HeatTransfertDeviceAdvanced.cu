@@ -3,12 +3,14 @@
 #include "Indice2D.h"
 #include "IndiceTools.h"
 #include "ColorTools.h"
+#include "CalibreurF.h"
+#include "IntervalF_GPU.h"
 
 __global__ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
 __global__ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize);
 __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize);
 
-__device__ float computeHeat1(float oldHeat, float* neighborPixels, unsigned int nbNeighbors, float propagationSpeed);
+__device__ float computeHeat1(float oldHeat, float* neighborPixels, float propagationSpeed);
 __device__ float computeHeat2(float oldHeat, float* neighborPixels, float propagationSpeed);
 __device__ float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed);
 
@@ -67,13 +69,22 @@ __global__ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsign
 {
   const int NB_THREADS = Indice2D::nbThread();
   const int TID = Indice2D::tid();
-
   unsigned int s = TID;
+
+  float heatMax = 1.0;
+  float heatMin = 0.;
+  float hueMax = 0.;
+  float hueMin = 0.7;
+
+  CalibreurF calibreur(IntervalF(heatMin, heatMax), IntervalF(hueMin, hueMax));
+
   while (s < arraySize)
   {
-    float hue = 0.7 - ptrDevImage[s] * 0.7;
-    ColorTools::HSB_TO_RVB(hue, 1, 1, &ptrDevPixels[s]);
-    ptrDevPixels[s].w = 255;
+    float hue = ptrDevImage[s];
+    calibreur.calibrer(hue);
+    uchar4 p;
+    ColorTools::HSB_TO_RVB(hue, 1, 1, &p.x, &p.y, &p.z);
+    ptrDevPixels[s] = p;
 
     s += NB_THREADS;
   }
