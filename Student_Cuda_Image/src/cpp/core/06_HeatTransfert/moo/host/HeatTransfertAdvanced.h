@@ -4,6 +4,7 @@
 #include "cudaType.h"
 #include "Animable_I.h"
 #include "VariateurI.h"
+#include "SimpleMouseListener.h"
 
 /**
  * Service responsible for calculating the color of a pixels.
@@ -56,6 +57,9 @@ class HeatTransfertAdvanced: public Animable_I
     VariateurI variateurN;
     int NB_ITERATION_AVEUGLE;
     bool isBufferA;
+	SimpleMouseListener* ptrMouseListener;
+
+    void listener();
 };
 
 #endif

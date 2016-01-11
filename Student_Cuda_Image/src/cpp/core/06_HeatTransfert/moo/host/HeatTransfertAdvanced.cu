@@ -80,6 +80,8 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int he
     // Copy images from CPU to GPU
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, imageHeater, arraySize, cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, imageInit, arraySize, cudaMemcpyHostToDevice));
+
+    this->listener();
 }
 
 HeatTransfertAdvanced::~HeatTransfertAdvanced()
@@ -159,4 +161,9 @@ int HeatTransfertAdvanced::getH()
 string HeatTransfertAdvanced::getTitle()
 {
     return this->title;
+}
+
+void HeatTransfertAdvanced::listener()
+{
+  //setMouseListener(this->ptrMouseListener = new SimpleMouseListener());
 }
