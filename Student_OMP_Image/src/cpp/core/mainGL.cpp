@@ -24,7 +24,7 @@ int mainGL(Settings& settings)
     GLUTImageViewers::init(settings.getArgc(), settings.getArgv());
 
     //Viewer<RipplingProvider> rippling(10, 10);
-    Viewer<HeatTransfertProviderAdvanced> rippling(10, 10);
+    //Viewer<HeatTransfertProviderAdvanced> rippling(10, 10);
 
     //ViewerZoomable<MandelbrotFactory> mandelbrot(10, 10);
     //ViewerZoomable<JuliaFactory> julia(820, 10);

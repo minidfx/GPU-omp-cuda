@@ -13,6 +13,14 @@
     "Clean": {
       "cmd": "bash",
       "args": [ "clean.sh" ]
+    },
+    "Compile & Run Intel (command line)": {
+      "cmd": "bash",
+      "args": [ "run.sh", "Intel" ]
+    },
+    "Compile & Run GCC (command line)": {
+      "cmd": "bash",
+      "args": [ "run.sh", "gcc" ]
     }
   }
 }

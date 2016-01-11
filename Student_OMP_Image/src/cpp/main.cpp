@@ -13,7 +13,7 @@ static int start(Settings& settings);
 int main(int argc, char** argv) {
   cout<<"main"<<endl;
 
-  bool IS_GL = true;
+  bool IS_GL = false;
   Settings settings(IS_GL,argc,argv);
 
   return start(settings);

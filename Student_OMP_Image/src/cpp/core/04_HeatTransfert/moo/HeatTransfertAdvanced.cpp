@@ -9,9 +9,13 @@
 
 using cpu::IntervalI;
 
-void diffuseAdvanced(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
-void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
+void diffuseEntrelacement(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+void crushEntrelacement(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
+void displayEntrelacement(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
+
+void diffuseAuto(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+void crushAuto(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
+void displayAuto(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
 
 HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title) : variateurN(IntervalI(0, INT_MAX), 1)
 {
@@ -82,29 +86,44 @@ HeatTransfertAdvanced::~HeatTransfertAdvanced()
  */
 void HeatTransfertAdvanced::process(uchar4* ptrTabPixels, int width, int height)
 {
-  float* ptrImageOutput;
-  float* ptrImageInput;
+    float* ptrImageOutput;
+    float* ptrImageInput;
 
-  if (this->isBufferA)
-  {
-    ptrImageInput = this->ptrTabImageA;
-    ptrImageOutput = this->ptrTabImageB;
-  }
-  else
-  {
-    ptrImageInput = this->ptrTabImageB;
-    ptrImageOutput = this->ptrTabImageA;
-  }
+    if (this->isBufferA)
+    {
+        ptrImageInput = this->ptrTabImageA;
+        ptrImageOutput = this->ptrTabImageB;
+    }
+    else
+    {
+        ptrImageInput = this->ptrTabImageB;
+        ptrImageOutput = this->ptrTabImageA;
+    }
 
-  diffuseAdvanced(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
-  crushAdvanced(this->ptrTabImageHeater, ptrImageOutput, this->totalPixels);
+    switch (this->parallelPattern)
+    {
+        case OMP_ENTRELACEMENT:
+            diffuseEntrelacement(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
+            crushEntrelacement(this->ptrTabImageHeater, ptrImageOutput, this->totalPixels);
 
-  if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
-  {
-    displayAdvanced(ptrImageOutput, ptrTabPixels, this->totalPixels);
-  }
+            if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
+            {
+                displayEntrelacement(ptrImageOutput, ptrTabPixels, this->totalPixels);
+            }
+        break;
 
-  this->isBufferA = !this->isBufferA;
+        case OMP_FORAUTO:
+            diffuseAuto(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
+            crushAuto(this->ptrTabImageHeater, ptrImageOutput, this->totalPixels);
+
+            if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
+            {
+                displayAuto(ptrImageOutput, ptrTabPixels, this->totalPixels);
+            }
+        break;
+    }
+
+    this->isBufferA = !this->isBufferA;
 }
 
 void HeatTransfertAdvanced::setParallelPatern(ParallelPatern parallelPatternEnum)

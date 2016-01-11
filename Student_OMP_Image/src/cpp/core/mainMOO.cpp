@@ -10,6 +10,7 @@
 #include "MandelbrotFactory.h"
 #include "JuliaFactory.h"
 #include "NewtonFactory.h"
+#include "HeatTransfertProviderAdvanced.h"
 
 using std::cout;
 using std::endl;
@@ -28,7 +29,8 @@ int mainMOO(Settings& settings) {
   //animeAndDestroy(RipplingProvider::createMOO(), NB_ITERATION);
   //animeAndDestroy(MandelbrotFactory::createGenerator(), NB_ITERATION);
   //animeAndDestroy(JuliaFactory::createGenerator(), NB_ITERATION);
-  animeAndDestroy(NewtonFactory::createGenerator(), NB_ITERATION);
+  //animeAndDestroy(NewtonFactory::createGenerator(), NB_ITERATION);
+  animeAndDestroy(HeatTransfertProviderAdvanced::createMOO(), NB_ITERATION);
 
   cout << "\n[FreeGL] end" << endl;
 

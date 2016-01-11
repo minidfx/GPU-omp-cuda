@@ -3,15 +3,54 @@
 #include "ColorTools.h"
 #include "CalibreurF.h"
 
-void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize);
-void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize);
+void diffuse(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+void crush(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize, unsigned int s);
+void display(float* ptrTabImage, uchar4* ptrTabPixels, unsigned int arraySize, unsigned int s);
+
+void diffuseEntrelacement(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+void crushEntrelacement(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize);
+void displayEntrelacement(float* ptrTabImage, uchar4* ptrDevPixels, unsigned int arraySize);
+
+void diffuseAuto(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
+void crushAuto(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize);
+void displayAuto(float* ptrTabImage, uchar4* ptrDevPixels, unsigned int arraySize);
 
 float computeHeat1(float oldHeat, float* neighborPixels, float propagationSpeed);
 float computeHeat2(float oldHeat, float* neighborPixels, float propagationSpeed);
 float computeHeat3(float oldHeat, float* neighborPixels, float propagationSpeed);
 
-void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
+void diffuse(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed, unsigned int i, unsigned int j, unsigned int s)
+{
+    if (i > 0 && i < (height - 1) && j > 0 && j < (width - 1))
+    {
+        float neighborPixels[4];
+        neighborPixels[0] = ptrTabImageInput[IndiceTools::toS(width, i - 1, j)];
+        neighborPixels[1] = ptrTabImageInput[IndiceTools::toS(width, i + 1, j)];
+        neighborPixels[2] = ptrTabImageInput[IndiceTools::toS(width, i, j - 1)];
+        neighborPixels[3] = ptrTabImageInput[IndiceTools::toS(width, i, j + 1)];
+
+        ptrTabImageOutput[s] = computeHeat3(ptrTabImageInput[s], neighborPixels, propagationSpeed);
+    }
+    else
+    {
+        ptrTabImageOutput[s] = ptrTabImageInput[s];
+    }
+}
+
+void diffuseAuto(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
+{
+    #pragma omp parallel for
+    for (int i = 0; i < width; i++)
+    {
+        for (int j = 0; j < height; j++)
+        {
+            int s = IndiceTools::toS(width, i, j);
+            diffuse(ptrTabImageInput, ptrTabImageOutput, width, height, propagationSpeed, i, j, s);
+        }
+    }
+}
+
+void diffuseEntrelacement(float* ptrTabImageInput, float* ptrTabImageOutput, unsigned int width, unsigned int height, float propagationSpeed)
 {
     #pragma omp parallel
     {
@@ -28,27 +67,30 @@ void diffuseAdvanced(float* ptrDevImageInput, float* ptrDevImageOutput, unsigned
             int i, j;
             IndiceTools::toIJ(s, width, &i, &j);
 
-            if (i > 0 && i < (height - 1) && j > 0 && j < (width - 1))
-            {
-                float neighborPixels[4];
-                neighborPixels[0] = ptrDevImageInput[IndiceTools::toS(width, i - 1, j)];
-                neighborPixels[1] = ptrDevImageInput[IndiceTools::toS(width, i + 1, j)];
-                neighborPixels[2] = ptrDevImageInput[IndiceTools::toS(width, i, j - 1)];
-                neighborPixels[3] = ptrDevImageInput[IndiceTools::toS(width, i, j + 1)];
-
-                ptrDevImageOutput[s] = computeHeat3(ptrDevImageInput[s], neighborPixels, propagationSpeed);
-            }
-            else
-            {
-                ptrDevImageOutput[s] = ptrDevImageInput[s];
-            }
-
+            diffuse(ptrTabImageInput, ptrTabImageOutput, width, height, propagationSpeed, i, j, s);
             s += NB_THREADS;
         }
     }
 }
 
-void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int arraySize)
+void crush(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize, unsigned int s)
+{
+    if (ptrTabImageHeater[s] > 0.0)
+    {
+        ptrTabImage[s] = ptrTabImageHeater[s];
+    }
+}
+
+void crushAuto(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize)
+{
+    #pragma omp parallel for
+    for (unsigned int i = 0; i < arraySize; i++)
+    {
+        crush(ptrTabImageHeater, ptrTabImage, arraySize, i);
+    }
+}
+
+void crushEntrelacement(float* ptrTabImageHeater, float* ptrTabImage, unsigned int arraySize)
 {
     #pragma omp parallel
     {
@@ -58,17 +100,38 @@ void crushAdvanced(float* ptrDevImageHeater, float* ptrDevImage, unsigned int ar
         unsigned int s = TID;
         while (s < arraySize)
         {
-            if (ptrDevImageHeater[s] > 0.0)
-            {
-                ptrDevImage[s] = ptrDevImageHeater[s];
-            }
-
+            crush(ptrTabImageHeater, ptrTabImage, arraySize, s);
             s += NB_THREADS;
         }
     }
 }
 
-void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arraySize)
+void display(float* ptrTabImage, uchar4* ptrTabPixels, unsigned int arraySize, unsigned int s)
+{
+    float heatMax = 1.0;
+    float heatMin = 0.;
+    float hueMax = 0.;
+    float hueMin = 0.7;
+
+    CalibreurF calibreur(IntervalF(heatMin, heatMax), IntervalF(hueMin, hueMax));
+
+    float hue = ptrTabImage[s];
+    calibreur.calibrer(hue);
+    uchar4 p;
+    ColorTools::HSB_TO_RVB(hue, 1, 1, &p.x, &p.y, &p.z);
+    ptrTabPixels[s] = p;
+}
+
+void displayAuto(float* ptrTabImage, uchar4* ptrDevPixels, unsigned int arraySize)
+{
+    #pragma omp parallel for
+    for (unsigned int i = 0; i < arraySize; i++)
+    {
+        display(ptrTabImage, ptrDevPixels, arraySize, i);
+    }
+}
+
+void displayEntrelacement(float* ptrTabImage, uchar4* ptrTabPixels, unsigned int arraySize)
 {
     #pragma omp parallel
     {
@@ -76,21 +139,9 @@ void displayAdvanced(float* ptrDevImage, uchar4* ptrDevPixels, unsigned int arra
         const int TID = OmpTools::getTid();
         unsigned int s = TID;
 
-        float heatMax = 1.0;
-        float heatMin = 0.;
-        float hueMax = 0.;
-        float hueMin = 0.7;
-
-        CalibreurF calibreur(IntervalF(heatMin, heatMax), IntervalF(hueMin, hueMax));
-
         while (s < arraySize)
         {
-            float hue = ptrDevImage[s];
-            calibreur.calibrer(hue);
-            uchar4 p;
-            ColorTools::HSB_TO_RVB(hue, 1, 1, &p.x, &p.y, &p.z);
-            ptrDevPixels[s] = p;
-
+            display(ptrTabImage, ptrTabPixels, arraySize, s);
             s += NB_THREADS;
         }
     }
