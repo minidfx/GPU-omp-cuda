@@ -5,7 +5,7 @@
   "sh": false,
   "env": {},
   "errorMatch": [
-    "\n(?<file>[\\/0-9a-zA-Z\\._ ]+):(?<line>\\d+):(?<col>\\d+)",
+    "\n(?<file>[\\/0-9a-zA-Z\\._ ]+\\.[\\w\\d]+):(?<line>\\d+):(?<col>\\d+)",
     "(?<file>[^\\r\\n(]+)\\((?<line>\\d+)\\)"
   ],
   "targets": {
