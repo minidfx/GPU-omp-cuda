@@ -1,6 +1,7 @@
 #include "IndiceTools.h"
 #include "HeatTransfertProviderAdvanced.h"
 #include "HeatTransfertAdvanced.h"
+#include "HeatTransfertDeviceAdvanced.h"
 
 /**
  * Creates a window OpenGL containing the animation.
@@ -20,5 +21,5 @@ Animable_I* HeatTransfertProviderAdvanced::createMOO()
   unsigned int width = 500;
   unsigned int height = 500;
 
-  return new HeatTransfertAdvanced(width, height, 0.25, "CUDA HeatTransfert (new)");
+  return new HeatTransfertAdvanced(width, height, 0.25, "CUDA HeatTransfert (new)", ComputeMode2);
 }

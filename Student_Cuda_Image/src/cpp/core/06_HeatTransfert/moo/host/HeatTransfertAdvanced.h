@@ -5,6 +5,7 @@
 #include "Animable_I.h"
 #include "VariateurI.h"
 #include "SimpleMouseListener.h"
+#include "HeatTransfertDeviceAdvanced.h"
 
 /**
  * Service responsible for calculating the color of a pixels.
@@ -16,7 +17,11 @@ class HeatTransfertAdvanced: public Animable_I
     /**
      * Constructs the service responsible for calculating heat between pixels which will be displayed into a window OpenGL.
      */
-    HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title);
+    HeatTransfertAdvanced(unsigned int width,
+                          unsigned int height,
+                          float propagationSpeed,
+                          string title,
+                          ComputeMode computeMode);
 
     /**
      * Release resources initialized in the constructor.
@@ -42,6 +47,7 @@ class HeatTransfertAdvanced: public Animable_I
     unsigned int height;
     unsigned int totalPixels;
     string title;
+    ComputeMode computeMode;
 
     // Images
     float* ptrDevImageInit;
