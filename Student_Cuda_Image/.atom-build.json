@@ -8,6 +8,10 @@
   "targets": {
     "Compile & Run (command line)": {
       "cmd": "bash",
+      "args": [ "buildAndRun.sh" ]
+    },
+    "Run (command line)": {
+      "cmd": "bash",
       "args": [ "run.sh" ]
     },
     "Clean": {

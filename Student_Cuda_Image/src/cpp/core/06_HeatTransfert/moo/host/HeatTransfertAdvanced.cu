@@ -10,18 +10,18 @@
 
 using cpu::IntervalI;
 
-__global__ void diffuseAdvanced(float* ptrImageInput, float* ptrImageOutput, unsigned int width, unsigned int height, float propagationSpeed);
-__global__ void crushAdvanced(float* ptrImageHeater, float* ptrImage, unsigned int arraySize);
-__global__ void displayAdvanced(float* ptrImage, uchar4* ptrPixels, unsigned int arraySize);
-
-HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width, unsigned int height, float propagationSpeed, string title) : variateurN(IntervalI(0, INT_MAX), 1)
+HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
+                                              unsigned int height,
+                                              float propagationSpeed,
+                                              string title,
+                                              ComputeMode computeMode) : variateurN(IntervalI(0, INT_MAX), 1)
 {
     // Inputs
     this->width = width;
     this->height = height;
-    
     this->totalPixels = width * height;
     this->title = title;
+    this->computeMode = computeMode;
 
     // Tools
     this->iteration = 0;
@@ -113,7 +113,7 @@ void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
     ptrImageOutput = this->ptrDevImageA;
   }
 
-  diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed);
+  diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed, this->computeMode);
   crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
 
   if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
