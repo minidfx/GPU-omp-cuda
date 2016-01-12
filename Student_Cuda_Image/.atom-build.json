@@ -4,7 +4,10 @@
   "args": [ "build.sh" ],
   "sh": false,
   "env": {},
-  "errorMatch": [],
+  "errorMatch": [
+    "\n(?<file>[\\/0-9a-zA-Z\\._ ]+):(?<line>\\d+):(?<col>\\d+)",
+    "(?<file>[^\\r\\n(]+)\\((?<line>\\d+)\\)"
+  ],
   "targets": {
     "Compile & Run (command line)": {
       "cmd": "bash",
