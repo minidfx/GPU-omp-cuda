@@ -1,4 +1,4 @@
-#include "../../../02_Mandelbrot_MultiGPU/moo/host/MandelbrotMGPU.h"
+#include "MandelbrotMGPU.h"
 
 #include <assert.h>
 
