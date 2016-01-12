@@ -21,7 +21,8 @@ class HeatTransfertAdvanced: public Animable_I
                           unsigned int height,
                           float propagationSpeed,
                           string title,
-                          ComputeMode computeMode);
+                          ComputeMode computeMode,
+                          bool isMultiGPU);
 
     /**
      * Release resources initialized in the constructor.
@@ -64,6 +65,10 @@ class HeatTransfertAdvanced: public Animable_I
     int NB_ITERATION_AVEUGLE;
     bool isBufferA;
 	SimpleMouseListener* ptrMouseListener;
+
+    void (HeatTransfertAdvanced::*ptrProcessFunction)(uchar4* ptrDevPixels, int width, int height);
+    void processSingleGPU(uchar4* ptrDevPixels, int width, int height);
+    void processMultiGPU(uchar4* ptrDevPixels, int width, int height);
 
     void listener();
 };

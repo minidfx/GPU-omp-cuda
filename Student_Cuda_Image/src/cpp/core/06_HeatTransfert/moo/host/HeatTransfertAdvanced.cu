@@ -14,7 +14,8 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
                                               unsigned int height,
                                               float propagationSpeed,
                                               string title,
-                                              ComputeMode computeMode) : variateurN(IntervalI(0, INT_MAX), 1)
+                                              ComputeMode computeMode,
+                                              bool isMultiGPU) : variateurN(IntervalI(0, INT_MAX), 1)
 {
     // Inputs
     this->width = width;
@@ -83,6 +84,8 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, imageInit, arraySize, cudaMemcpyHostToDevice));
 
     this->listener();
+
+    this->ptrProcessFunction = isMultiGPU ? &HeatTransfertAdvanced::processSingleGPU : &HeatTransfertAdvanced::processMultiGPU;
 }
 
 HeatTransfertAdvanced::~HeatTransfertAdvanced()
@@ -99,21 +102,26 @@ HeatTransfertAdvanced::~HeatTransfertAdvanced()
  */
 void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
 {
+  (this->*ptrProcessFunction)(ptrDevPixels, width, height);
+}
+
+void HeatTransfertAdvanced::processSingleGPU(uchar4* ptrDevPixels, int width, int height)
+{
   float* ptrImageOutput;
-  float* ptrImageInput;
+  float* ptrImageInputANew;
 
   if (this->isBufferA)
   {
-    ptrImageInput = this->ptrDevImageA;
+    ptrImageInputANew = this->ptrDevImageA;
     ptrImageOutput = this->ptrDevImageB;
   }
   else
   {
-    ptrImageInput = this->ptrDevImageB;
+    ptrImageInputANew = this->ptrDevImageB;
     ptrImageOutput = this->ptrDevImageA;
   }
 
-  diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInput, ptrImageOutput, this->width, this->height, this->propagationSpeed, this->computeMode);
+  diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInputANew, ptrImageOutput, this->width, this->height, this->propagationSpeed, this->computeMode);
   crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
 
   if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
@@ -122,6 +130,11 @@ void HeatTransfertAdvanced::process(uchar4* ptrDevPixels, int width, int height)
   }
 
   this->isBufferA = !this->isBufferA;
+}
+
+void HeatTransfertAdvanced::processMultiGPU(uchar4* ptrDevPixels, int width, int height)
+{
+
 }
 
 /**
