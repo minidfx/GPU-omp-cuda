@@ -17,6 +17,10 @@
       "cmd": "bash",
       "args": [ "run.sh" ]
     },
+    "3 runs (command line)": {
+      "cmd": "bash",
+      "args": [ "3runs.sh" ]
+    },
     "Clean": {
       "cmd": "bash",
       "args": [ "clean.sh" ]
