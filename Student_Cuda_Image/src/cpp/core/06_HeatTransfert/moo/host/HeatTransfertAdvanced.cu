@@ -83,8 +83,6 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageHeater, imageHeater, arraySize, cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(this->ptrDevImageInit, imageInit, arraySize, cudaMemcpyHostToDevice));
 
-    this->listener();
-
     this->ptrProcessFunction = isMultiGPU ? &HeatTransfertAdvanced::processMultiGPU : &HeatTransfertAdvanced::processSingleGPU;
 }
 
@@ -178,9 +176,4 @@ int HeatTransfertAdvanced::getH()
 string HeatTransfertAdvanced::getTitle()
 {
     return this->title;
-}
-
-void HeatTransfertAdvanced::listener()
-{
-  //setMouseListener(this->ptrMouseListener = new SimpleMouseListener());
 }

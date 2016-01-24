@@ -69,8 +69,6 @@ class HeatTransfertAdvanced: public Animable_I
     void (HeatTransfertAdvanced::*ptrProcessFunction)(uchar4* ptrDevPixels, int width, int height);
     void processSingleGPU(uchar4* ptrDevPixels, int width, int height);
     void processMultiGPU(uchar4* ptrDevPixels, int width, int height);
-
-    void listener();
 };
 
 #endif
