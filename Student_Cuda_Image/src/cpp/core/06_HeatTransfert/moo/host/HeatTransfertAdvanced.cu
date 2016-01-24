@@ -85,7 +85,7 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
 
     this->listener();
 
-    this->ptrProcessFunction = isMultiGPU ? &HeatTransfertAdvanced::processSingleGPU : &HeatTransfertAdvanced::processMultiGPU;
+    this->ptrProcessFunction = isMultiGPU ? &HeatTransfertAdvanced::processMultiGPU : &HeatTransfertAdvanced::processSingleGPU;
 }
 
 HeatTransfertAdvanced::~HeatTransfertAdvanced()
