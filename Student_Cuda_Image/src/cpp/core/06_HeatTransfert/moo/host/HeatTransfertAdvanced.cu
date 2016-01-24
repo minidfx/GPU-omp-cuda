@@ -31,8 +31,8 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
     this->isBufferA = true;
 
     // Cuda grid dimensions
-    this->dg = dim3(8, 8, 1);
-    this->db = dim3(16, 16, 1);
+    // this->db = dim3(32, 32, 1);
+    // this->dg = dim3(16, 16, 1);
 
     // Check
     Device::assertDim(this->dg, this->db);
@@ -49,12 +49,12 @@ HeatTransfertAdvanced::HeatTransfertAdvanced(unsigned int width,
         int i, j;
         IndiceTools::toIJ(s, width, &i, &j);
 
-        if (i >= 187 && i < 312 && j >= 187 && j < 312)
+        if (i >= 191 && i < 319 && j >= 191 && j < 319)
         {
             imageHeater[s] = 1.0;
         }
-        else if ((i >= 111 && i < 121 && j >= 111 && j < 121) || (i >= 111 && i < 121 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 111 && j < 121)
-        || (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388) || (i >= 378 && i < 388 && j >= 378 && j < 388))
+        else if ((i >= 113 && i < 123 && j >= 113 && j < 123) || (i >= 113 && i < 123 && j >= 387 && j < 397) || (i >= 387 && i < 397 && j >= 113 && j < 123)
+        || (i >= 387 && i < 397 && j >= 387 && j < 397) || (i >= 387 && i < 397 && j >= 387 && j < 397) || (i >= 387 && i < 397 && j >= 387 && j < 397))
         {
             imageHeater[s] = 0.2;
         }
@@ -123,10 +123,13 @@ void HeatTransfertAdvanced::processSingleGPU(uchar4* ptrDevPixels, int width, in
 
   diffuseAdvanced<<<this->dg, this->db>>>(ptrImageInputANew, ptrImageOutput, this->width, this->height, this->propagationSpeed, this->computeMode);
   crushAdvanced<<<this->dg, this->db>>>(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
+  // diffusePerPixel<<<this->dg, this->db>>>(ptrImageInputANew, ptrImageOutput, this->width, this->height, this->propagationSpeed, this->computeMode);
+  // crushPerPixel<<<this->dg, this->db>>>(this->ptrDevImageHeater, ptrImageOutput, this->totalPixels);
 
   if(this->iteration % this->NB_ITERATION_AVEUGLE == 0)
   {
     displayAdvanced<<<this->dg, this->db>>>(ptrImageOutput, ptrDevPixels, this->totalPixels);
+    // displayPerPixel<<<this->dg, this->db>>>(ptrImageOutput, ptrDevPixels, this->totalPixels);
   }
 
   this->isBufferA = !this->isBufferA;

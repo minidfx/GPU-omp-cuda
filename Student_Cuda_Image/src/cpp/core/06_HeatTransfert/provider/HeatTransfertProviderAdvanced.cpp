@@ -18,8 +18,8 @@ Image* HeatTransfertProviderAdvanced::createGL()
  */
 Animable_I* HeatTransfertProviderAdvanced::createMOO()
 {
-  unsigned int width = 500;
-  unsigned int height = 500;
+  unsigned int width = 512;
+  unsigned int height = 512;
 
   return new HeatTransfertAdvanced(width, height, 0.25, "CUDA HeatTransfert (new)", ComputeMode2, false);
 }

@@ -20,6 +20,19 @@ __global__ void displayAdvanced(float* ptrDevImage,
                                 uchar4* ptrDevPixels,
                                 unsigned int arraySize);
 
+__global__ void diffusePerPixel(float* ptrDevImageInput,
+                                float* ptrDevImageOutput,
+                                unsigned int width,
+                                unsigned int height,
+                                float propagationSpeed,
+                                ComputeMode computeMode);
+__global__ void crushPerPixel(float* ptrDevImageHeater,
+                              float* ptrDevImage,
+                              unsigned int arraySize);
+__global__ void displayPerPixel(float* ptrDevImage,
+                                uchar4* ptrDevPixels,
+                                unsigned int arraySize);
+
 __device__ float computeHeat1(float oldHeat,
                               float* neighborPixels,
                               float propagationSpeed);
